@@ -43,8 +43,6 @@ jobs:
       - name: Run python script
         env:
           API_KEY: ${{ secrets.API_KEY }}
-          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
-          GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
         run: python3 ./data/update_data.py
 
       - name: Push files to GitHub
