@@ -35,6 +35,11 @@ jobs:
           mv ./whisper.cpp/build/bin/whisper-cli ./data/whisper-cli
           mv whisper.cpp/models/ggml-tiny.en.bin ./ggml-tiny.en.bin
 
+      - name: Save cached cookies to a file
+        env:
+          COOKIES: ${{ secrets.COOKIES }}
+        run: echo "$COOKIES" | base64 -d > cookies.txt
+
       - name: Run python script
         env:
           API_KEY: ${{ secrets.API_KEY }}
