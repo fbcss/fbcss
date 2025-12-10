@@ -200,7 +200,7 @@ for pl in playlists:
                 video_container = transcripts["other"]
 
             ydl_opts = {
-                "cookies": "cookies.txt",
+                "cookiefile": "cookies.txt",
                 "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
                 "format": "bestaudio/best",
                 "postprocessors": [{
