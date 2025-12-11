@@ -230,15 +230,12 @@ for pl in playlists:
             os.remove("input.mp3")
 
             video_transcript = video_transcript["transcription"]
-            for snippet in video_transcript:
+            for i, snippet in enumerate(video_transcript):
                 timestamp = snippet["timestamps"]["from"].split(",")[0]
                 h, m, s = timestamp.split(":")
                 timestamp = f"{h + ':' if h != '00' else ''}{m}:{s}"
-
-                snippet = [
-                    timestamp,
-                    snippet["text"]
-                ]
+    
+                video_transcript[i] = [ timestamp, snippet["text"] ]
 
             video_data["transcript"] = video_transcript
             
