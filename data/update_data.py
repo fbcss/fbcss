@@ -239,7 +239,8 @@ for pl in playlists:
                 video_transcript[i] = [ timestamp, snippet["text"] ]
 
             video_data["transcript"] = video_transcript
-            
+            os.remove("output.json")
+
             if title == "live":
                 transcripts["live"] = video_data
             else:
