@@ -33,8 +33,8 @@ jobs:
 
       - name: Move tools to the working directory
         run: |
-          mv ./whisper.cpp/build/bin/whisper-cli ./data/whisper-cli
-          mv whisper.cpp/models/ggml-tiny.en.bin ./ggml-tiny.en.bin
+          mv whisper.cpp/build/bin/whisper-cli whisper-cli
+          mv whisper.cpp/models/ggml-tiny.en.bin ggml-tiny.en.bin
 
       - name: Save cached cookies to a file
         env:

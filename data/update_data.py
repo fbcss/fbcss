@@ -215,7 +215,7 @@ for pl in playlists:
                     "https://www.youtube.com/watch?v=" + video_data["id"]
                 ])
 
-            whisper_path = os.path.join(script_path, "whisper-cli")
+            whisper_path = os.path.join(os.getcwd(), "whisper-cli")
             whisper_args = [
                 "-m", "ggml-tiny.en.bin",
                 "-f", "input.mp3",
