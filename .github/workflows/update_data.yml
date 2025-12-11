@@ -53,6 +53,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin main
           git add data/transcripts.json
           git commit -m "Automated push from GitHub Actions workflow"
           git push -u origin main
