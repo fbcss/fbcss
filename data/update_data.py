@@ -227,7 +227,7 @@ for pl in playlists:
             with open("output.json", "r") as json_file:
                 video_transcript = json.load(json_file)
 
-            # os.remove("input.mp3")
+            os.remove("input.mp3")
 
             video_transcript = video_transcript["transcription"]
             for snippet in video_transcript:
