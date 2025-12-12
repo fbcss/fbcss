@@ -204,7 +204,7 @@ for pl in playlists:
             else:
                 video_container = video_container["other"]
 
-        bannedIds = ("eqA-3qW-i8k", "KQvhm6KpBOg", "KQvhm6KpBOg")
+        bannedIds = ("eqA-3qW-i8k", "KQvhm6KpBOg", "KQvhm6KpBOg", "5W5xiaEhK9M")
         videoExists = next((x for x in video_container if x["id"] == video_data["id"]), None)
         if not videoExists and not video_data["id"] in bannedIds:
             if title.lower() == "pastor rob mcnutt":
