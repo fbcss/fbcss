@@ -253,7 +253,10 @@ for pl in playlists:
                     if not next_line.startswith(" "):
                         split_line = next_line.split(" ", 1)
                         text += split_line[0]
-                        next_line = " " + split_line[1]
+                        if " " not in next_line.strip():
+                            del video_transcript[i + 1]
+                        else:
+                            next_line = " " + split_line[1]
                         video_transcript[i + 1]["text"] = next_line
                     text += " "
 
