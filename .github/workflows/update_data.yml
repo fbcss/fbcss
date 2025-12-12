@@ -55,7 +55,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
           git add data/transcripts.json
-          git commit -m "Automated push from GitHub Actions workflow"
+          git commit -m "Automated transcription"
+          git pull --rebase origin main
           git push -u origin main
