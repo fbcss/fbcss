@@ -206,7 +206,14 @@ for pl in playlists:
             ydl_opts = {
                 "cookiefile": "cookies.txt",
                 "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
-                "format": "worstaudio[language=en]/worst[language=en]",
+                "format": (
+                    "worstaudio[language=en]/"
+                    "worst[language=en]/"
+                    "worstaudio[language=original]/"
+                    "worst[language=original]/"
+                    "worstaudio/"
+                    "worst"
+                ),
                 "postprocessors": [{
                     "key": "FFmpegExtractAudio",
                     "preferredcodec": "mp3",
