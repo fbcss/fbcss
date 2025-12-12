@@ -19,7 +19,7 @@ jobs:
 
       - name: Deploy to fbcss.github.io
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "fbcss"
+          git config user.email "fbcss@fbcss.github.io"
           git push --force "${{ secrets.CLONE_TOKEN }}@github.com/fbcss/fbcss.github.io.git" main
 
