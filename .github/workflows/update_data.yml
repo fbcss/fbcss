@@ -2,6 +2,15 @@ name: Update transcripts data
 
 on:
   workflow_dispatch:
+  schedule:
+    # Every sunday at 12:33, 12:47, and 1:03 PM (respectively).
+    - cron: '33 17 * * 0'
+    - cron: '47 17 * * 0'
+    - cron: '3 18 * * 0'
+    - cron: '5 9 * * 0'
+    - cron: '14 17 * * 0'
+    # Every day at 2:03 AM EST (converted to UTC).
+    - cron: '3 7 * * *'
 
 jobs:
   build:
