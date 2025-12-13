@@ -8,8 +8,8 @@
     "prefer_related_applications": false,
     "display": "standalone",
     "orientation": "any",
-    "start_url": "/fbcss",
-    "scope": "/fbcss",
+    "start_url": "/",
+    "scope": "/",
     "dir": "ltr",
     "lang": "en",
     "icons": [
