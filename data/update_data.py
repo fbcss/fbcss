@@ -233,6 +233,7 @@ for pl in playlists:
                     "preferredcodec": "mp3",
                     "preferredquality": "192",
                 }],
+                "remote_components": ["ejs:github"],
             }
 
             with YoutubeDL(ydl_opts) as ydl:
