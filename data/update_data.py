@@ -221,12 +221,9 @@ for pl in playlists:
                 "cookiefile": "cookies.txt",
                 "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
                 "format": (
-                    "worstaudio[language=en]/"
-                    "worst[language=en]/"
-                    "worstaudio[language=original]/"
-                    "worst[language=original]/"
-                    "worstaudio/"
-                    "worst"
+                    "bestaudio[acodec!=none][language=en]/"
+                    "bestaudio[acodec!=none][language=original]/"
+                    "bestaudio[acodec!=none]/best"
                 ),
                 "postprocessors": [{
                     "key": "FFmpegExtractAudio",
