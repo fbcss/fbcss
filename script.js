@@ -1,6 +1,6 @@
 // Patent pending, no duplicates.
 
-const transcriptsUrl = "https://raw.githubusercontent.com/fbcss/fbcss/main/data/transcripts.json";
+const transcriptsUrl = "./data/transcripts.json";
 
 const searchBar = document.getElementById("searchbar");
 const contents = document.getElementById("contents");
@@ -108,64 +108,11 @@ const betweenDates = (timestamp) => {
 // =================================================================================================
 // Load initial sermon data.
 // =================================================================================================
-const preprocessEntry = ([time, text]) => {
-    if (!text) {
-        return { time, raw: "", words: [] };
-    }
-
-    const cleaned = text
-        .toLowerCase()
-        .replace(/[^a-z0-9 ]/g, " ")
-        .split(/\s+/)
-        .filter(Boolean);
-
-    return {
-        time,
-        raw: text,
-        words: cleaned
-    };
-};
-
-const preprocessVideo = (video) => {
-    return {
-        ...video,
-        timestamp: new Date(video.date).getTime(),
-        transcript: video.transcript.map(preprocessEntry)
-    };
-};
-
-const preprocessTranscripts = (data) => {
-    // books
-    for (const book in data.books) {
-        data.books[book] = data.books[book].map(preprocessVideo);
-    }
-
-    // guests
-    for (const key in data.guests) {
-        data.guests[key] = data.guests[key].map(preprocessVideo);
-    }
-
-    // specials
-    data.specials = data.specials.map(preprocessVideo);
-
-    // other
-    data.other = data.other.map(preprocessVideo);
-
-    // live (if exists)
-    if (data.live) {
-        data.live = preprocessVideo(data.live);
-    }
-
-    return data;
-};
-
 let transcripts;
 (async () => {
     try {
         contents.innerHTML = `<div id="match-count">Loading sermons...</div>`;
-        transcripts = preprocessTranscripts(
-            await fetch(transcriptsUrl).then(res => res.json())
-        );
+        transcripts = await fetch(transcriptsUrl).then(res => res.json());
 
         const oldTestament = Object.keys(testaments["Old Testament"]);
         const newTestament = Object.keys(testaments["New Testament"]);
@@ -546,8 +493,9 @@ const search = async () => {
             if (betweenDates(video.timestamp)) {
                 for (let i = 0; i < video.transcript.length; i++) {
                     const entry = video.transcript[i];
+                    console.log(entry);
 
-                    if (totalInstances >= loadMax) break;
+                    if (sortBy !== "top" && totalInstances >= loadMax) break;
                     if (!entry.words.includes(kA[0])) continue;
 
                     const match = matchSequence(video.transcript, i, kA);

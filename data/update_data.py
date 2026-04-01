@@ -7,6 +7,7 @@ import subprocess
 import time
 import signal
 import sys
+import re
 
 def signal_handler(sig, frame):
     print("You ended the process.")
@@ -272,7 +273,13 @@ for pl in playlists:
                         video_transcript[i + 1]["text"] = next_line
                     text += " "
 
-                video_transcript[i] = [ timestamp, text ]
+                words = re.findall(r"[a-z0-9]+", text.lower())
+
+                video_transcript[i] = {
+                    "time": timestamp,
+                    "raw": text,
+                    "words": words
+                }
 
             video_data["transcript"] = video_transcript
             os.remove("output.json")
