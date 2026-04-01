@@ -97,54 +97,75 @@ const getCurrSunday = () => {
     ).format("YYYY-MM-DD");
 };
 
-const removeDuplicates = (originalArray) => {
-    let trimmedArray = [];
-    let values = [];
-    let value;
-
-    for (let i = 0; i < originalArray.length; i++) {
-        value = originalArray[i]["id"];
-
-        if (values.indexOf(value) === -1) {
-            trimmedArray.push(originalArray[i]);
-            values.push(value);
-        }
-    }
-
-    return trimmedArray;
-};
-
-const betweenDates = (date) => {
-    const startDateValue = document.getElementById("start-date").value;
-    const endDateValue = document.getElementById("end-date").value;
-
-    let startDate = null;
-    let endDate = null;
-    if (startDateValue !== "") startDate = new Date(startDateValue);
-    if (endDateValue !== "") endDate = new Date(endDateValue);
-
-    const isValidStartDate = startDate instanceof Date && !isNaN(startDate);
-    const isValidEndDate = endDate instanceof Date && !isNaN(endDate);
-
-    const btwStartDate = isValidStartDate ? date >= startDate : false;
-    const btwEndDate = isValidEndDate ? date <= endDate : false;
-
-    return (
-        (!isValidEndDate && btwStartDate) ||
-        (!isValidStartDate && btwEndDate) ||
-        (btwStartDate && btwEndDate) ||
-        (!isValidStartDate && !isValidEndDate)
-    );
+// Cached Date objects to make loops faster
+let startDate, endDate;
+const betweenDates = (timestamp) => {
+    if (startDate && timestamp < startDate) return false;
+    if (endDate && timestamp > endDate) return false;
+    return true;
 };
 
 // =================================================================================================
 // Load initial sermon data.
 // =================================================================================================
+const preprocessEntry = ([time, text]) => {
+    if (!text) {
+        return { time, raw: "", words: [] };
+    }
+
+    const cleaned = text
+        .toLowerCase()
+        .replace(/[^a-z0-9 ]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+    return {
+        time,
+        raw: text,
+        words: cleaned
+    };
+};
+
+const preprocessVideo = (video) => {
+    return {
+        ...video,
+        timestamp: new Date(video.date).getTime(),
+        transcript: video.transcript.map(preprocessEntry)
+    };
+};
+
+const preprocessTranscripts = (data) => {
+    // books
+    for (const book in data.books) {
+        data.books[book] = data.books[book].map(preprocessVideo);
+    }
+
+    // guests
+    for (const key in data.guests) {
+        data.guests[key] = data.guests[key].map(preprocessVideo);
+    }
+
+    // specials
+    data.specials = data.specials.map(preprocessVideo);
+
+    // other
+    data.other = data.other.map(preprocessVideo);
+
+    // live (if exists)
+    if (data.live) {
+        data.live = preprocessVideo(data.live);
+    }
+
+    return data;
+};
+
 let transcripts;
 (async () => {
     try {
         contents.innerHTML = `<div id="match-count">Loading sermons...</div>`;
-        transcripts = await fetch(transcriptsUrl).then(res => res.json());
+        transcripts = preprocessTranscripts(
+            await fetch(transcriptsUrl).then(res => res.json())
+        );
 
         const oldTestament = Object.keys(testaments["Old Testament"]);
         const newTestament = Object.keys(testaments["New Testament"]);
@@ -382,6 +403,36 @@ const loadSermons = () => {
     scrollFunction();
 };
 
+const matchSequence = (transcript, startIdx, kA) => {
+    let k = 0;
+    let startTime = "";
+    let fullLine = "";
+
+    for (let i = startIdx; i < transcript.length; i++) {
+        const entry = transcript[i];
+
+        for (const word of entry.words) {
+            if (word === kA[k]) {
+                if (k === 0) startTime = entry.time;
+                k++;
+
+                if (k === kA.length) {
+                    fullLine += entry.raw;
+                    return [startTime, fullLine];
+                }
+            } else if (k > 0) {
+                // partial reset
+                k = (word === kA[0]) ? 1 : 0;
+                if (k === 1) startTime = entry.time;
+            }
+        }
+
+        fullLine += entry.raw;
+    }
+
+    return null;
+}
+
 const search = async () => {
     // Reset current loaded page.
     loadedAll = false;
@@ -391,13 +442,13 @@ const search = async () => {
 
     // If the search bar is empty, load all sermons (Same as home page).
     if (keyword === "") {
-        let sortedSermons = removeDuplicates(await fetchSermons());
+        let sortedSermons = await fetchSermons();
         sortBy === "old"
             ? sortedSermons.sort((a, b) => a.date.localeCompare(b.date))
             : sortedSermons.sort((a, b) => b.date.localeCompare(a.date));
 
         currLoadedSermons = sortedSermons.filter((sermon) => {
-            return betweenDates(new Date(sermon.date));
+            return betweenDates(sermon.timestamp);
         });
 
         loadSermons(currLoadedSermons, currPage);
@@ -477,7 +528,7 @@ const search = async () => {
     // Normal search query
     else if (keyword !== "") {
         normalSearch = true;
-        let sermons = removeDuplicates(await fetchSermons());
+        const sermons = await fetchSermons();
 
         let totalInstances = 0;
 
@@ -487,74 +538,36 @@ const search = async () => {
             await sermons.sort((a, b) => new Date(a.date) - new Date(b.date));
 
         results = [];
-        let entryCount = 0;
-        sermons.forEach((video) => {
-            const videoId = video.id;
+        const kA = keyword.split(" ");
+        for (let v = 0; v < sermons.length; v++) {
+            const video = sermons[v];
             const times = [];
 
-            if (betweenDates(new Date(video.date))) {
-                video.transcript.forEach((entry, idx) => {
-                    entryCount++;
-                    if (
-                        sortBy === "top" ||
-                        (entryCount > searchIterations &&
-                            totalInstances < loadMax)
-                    ) {
-                        searchIterations++;
-                        const line = entry[1] ? entry[1].toLowerCase() : "";
-                        const kA = keyword.split(" ");
-                        let cK = 0;
-                        let eT = "";
-                        let fL = "";
-                        if (line.includes(kA[0])) {
-                            for (
-                                let i = idx;
-                                i < video.transcript.length;
-                                i++
-                            ) {
-                                let chooseBreak = false;
-                                const iteration = video.transcript[i];
-                                for (const word of iteration[1]
-                                    .toLowerCase()
-                                    .replace(/[^a-zA-Z0-9 ]/g, "")
-                                    .split(" ")) {
-                                    if (word === kA[cK]) {
-                                        cK++;
-                                        if (cK === 1) eT = iteration[0];
-                                        if (cK === kA.length) {
-                                            fL += iteration[1];
-                                            times.push([eT, fL]);
-                                            totalInstances++;
-                                            chooseBreak = true;
-                                            break;
-                                        }
-                                    } else if (cK !== 0 && word !== "") {
-                                        cK = 0;
-                                        if (kA[cK] === word) cK++;
-                                    }
-                                    if (cK === 0 && word === "") {
-                                        chooseBreak = true;
-                                        break;
-                                    } else if (word === "" && cK !== 0) {
-                                        fL += iteration[1];
-                                    }
-                                }
-                                if (chooseBreak) break;
-                            }
-                        }
-                    }
-                });
-            }
+            if (betweenDates(video.timestamp)) {
+                for (let i = 0; i < video.transcript.length; i++) {
+                    const entry = video.transcript[i];
 
-            if (times.length > 0) {
-                results.push({
-                    id: videoId,
-                    title: video.name,
-                    date: video.date,
-                    timestamps: times,
-                });
+                    if (totalInstances >= loadMax) break;
+                    if (!entry.words.includes(kA[0])) continue;
+
+                    const match = matchSequence(video.transcript, i, kA);
+
+                    if (match) {
+                        times.push(match);
+                        totalInstances++;
+                    }
+                }
+
+                if (times.length > 0) {
+                    results.push({
+                        id: video.id,
+                        title: video.name,
+                        date: video.date,
+                        timestamps: times,
+                    });
+                }
             }
-        });
+        }
     }
 
     if (sortBy === "top" && normalSearch && !recentSermon)
@@ -595,6 +608,14 @@ const resetSearch = () => {
         .trim();
     reachedEndOfSearch = false;
     pastReferences = false;
+
+    // Update cached date ranges
+    const startValue = document.getElementById("start-date").value;
+    const endValue = document.getElementById("end-date").value;
+
+    startDate = startValue ? new Date(startValue).getTime() : null;
+    endDate = endValue ? new Date(endValue).getTime() : null;
+
     search();
 };
 
