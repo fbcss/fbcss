@@ -488,8 +488,8 @@ const search = async () => {
 
         results = [];
         let entryCount = 0;
+        const kA = keyword.split(" ");
         sermons.forEach((video) => {
-            const videoId = video.id;
             const times = [];
 
             if (betweenDates(new Date(video.date))) {
@@ -502,7 +502,7 @@ const search = async () => {
                     ) {
                         searchIterations++;
                         const line = entry[1] ? entry[1].toLowerCase() : "";
-                        const kA = keyword.split(" ");
+                        
                         let cK = 0;
                         let eT = "";
                         let fL = "";
@@ -548,7 +548,7 @@ const search = async () => {
 
             if (times.length > 0) {
                 results.push({
-                    id: videoId,
+                    id: video.id,
                     title: video.name,
                     date: video.date,
                     timestamps: times,
