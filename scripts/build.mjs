@@ -13,6 +13,7 @@ await Promise.all([
     minifyIdentifiers: false,
     entryPoints: ["script.js"],
     outfile: "dist/bundle.js",
+    format: "esm",
   }),
   esbuild.build({
     entryPoints: ["styles.css"],
