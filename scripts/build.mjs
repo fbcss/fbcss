@@ -10,7 +10,7 @@ await Promise.all([
     treeShaking: false,
     minifyWhitespace: true,
     minifySyntax: true,
-    minifyIdentifiers: true,
+    minifyIdentifiers: false,
     entryPoints: ["script.js"],
     outfile: "dist/bundle.js",
   }),
