@@ -1,153 +1,270 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="./manifest.json">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="./manifest.json" />
     <title>FBC Sermon Search</title>
-    <link rel="icon" sizes="192x192" href="https://static.wixstatic.com/shapes/105c8c_d74471c2ca334bff94e2a0dca9c0a050.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="styles.css">
+    <link
+      rel="icon"
+      sizes="192x192"
+      href="https://static.wixstatic.com/shapes/105c8c_d74471c2ca334bff94e2a0dca9c0a050.svg"
+      type="image/svg+xml"
+    />
+    <link rel="stylesheet" href="dist/styles.css" />
     <script src="assets/moment.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="mobile-title">
-        <svg onclick="loadFBC()" class="logo" preserveAspectRatio="xMidYMid meet" data-bbox="0.595 0.694 32.311 32.306" viewBox="0.595 0.694 32.311 32.306" xmlns="http://www.w3.org/2000/svg" data-type="color" role="presentation" aria-hidden="true" aria-label="">
-            <g>
-                <path d="M16.6 33h1.3V15.7h6.2v-2.4h-6.2V6.5h-2.3v6.8H9.4v2.4h6.2v14.7c-7.5-.7-13-7.3-12.4-14.8.7-7.5 7.3-13 14.8-12.4 7.5.7 13 7.3 12.4 14.8-.5 6-5 11-11 12.2v2.5c8.8-1.5 14.7-9.8 13.3-18.6C31.2 5.4 22.9-.5 14.1.9 5.3 2.4-.6 10.7.8 19.5c1.3 7.7 8 13.4 15.8 13.5z" fill="#165f7e" data-color="1"></path>
-            </g>
-        </svg>
-        <div class='title'>Sermon Search</div>
+      <svg
+        onclick="loadFBC()"
+        class="logo"
+        preserveAspectRatio="xMidYMid meet"
+        data-bbox="0.595 0.694 32.311 32.306"
+        viewBox="0.595 0.694 32.311 32.306"
+        xmlns="http://www.w3.org/2000/svg"
+        data-type="color"
+        role="presentation"
+        aria-hidden="true"
+        aria-label=""
+      >
+        <g>
+          <path
+            d="M16.6 33h1.3V15.7h6.2v-2.4h-6.2V6.5h-2.3v6.8H9.4v2.4h6.2v14.7c-7.5-.7-13-7.3-12.4-14.8.7-7.5 7.3-13 14.8-12.4 7.5.7 13 7.3 12.4 14.8-.5 6-5 11-11 12.2v2.5c8.8-1.5 14.7-9.8 13.3-18.6C31.2 5.4 22.9-.5 14.1.9 5.3 2.4-.6 10.7.8 19.5c1.3 7.7 8 13.4 15.8 13.5z"
+            fill="#165f7e"
+            data-color="1"
+          ></path>
+        </g>
+      </svg>
+      <div class="title">Sermon Search</div>
     </div>
     <div id="container">
-        <div class="logo-container">
-            <svg onclick="loadFBC()" class="logo" preserveAspectRatio="xMidYMid meet" data-bbox="0.595 0.694 32.311 32.306" viewBox="0.595 0.694 32.311 32.306" xmlns="http://www.w3.org/2000/svg" data-type="color" role="presentation" aria-hidden="true" aria-label="">
-                <g>
-                    <path d="M16.6 33h1.3V15.7h6.2v-2.4h-6.2V6.5h-2.3v6.8H9.4v2.4h6.2v14.7c-7.5-.7-13-7.3-12.4-14.8.7-7.5 7.3-13 14.8-12.4 7.5.7 13 7.3 12.4 14.8-.5 6-5 11-11 12.2v2.5c8.8-1.5 14.7-9.8 13.3-18.6C31.2 5.4 22.9-.5 14.1.9 5.3 2.4-.6 10.7.8 19.5c1.3 7.7 8 13.4 15.8 13.5z" fill="#165f7e" data-color="1"></path>
-                </g>
-            </svg>
-        </div>
-        <div id="lookup">
-            <div id="upper-search">
-                <h1 class="title">Sermon Search</h1>
-                <div id="search-line">
-                    <div id="search-container">
-                        <input placeholder="Enter keywords..." id="searchbar" type="text">
-                        <div id="search-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div id="search-right">
-                        <div id="livestream" class="pastor" onclick="toggleThisSermon()">Sunday's Sermon</div>
-                    </div>
-                </div>
-                <div id="filter-grid">
-                    <div id="dropdowns">
-                        <div class="dropdown">
-                            <div class="cover" id="upload-button">
-                                <span id="upload-full"></span>
-                                <img id="upload-img" src="assets/arrow-down.svg" width="15">
-                            </div>
-                            <div id="upload-content" class="content" style="display: none;">
-                                <span class="description">Select date</span>
-                                <div id="upload-title">Custom Range</div>
-                                <hr>
-                                <div id="upload-dates">
-                                    <input id="start-date" type="date" placeholder="Start date" onchange="displayUpload(); resetSearch();"/>
-                                    <input id="end-date" type="date" placeholder="End date" onchange="displayUpload(); resetSearch();"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dropdown">
-                            <div class="cover" id="books-button">
-                                <span id="books-full"></span>
-                                <img id="books-img" src="assets/arrow-down.svg" width="15">
-                            </div>
-                            <div id="books-content" class="content" style="display: none;">
-                                <div class="testament-selection" id="oldtestament" onclick="toggleTestament('Old Testament');">Old Testament</div>      
-                                <hr>
-                                <div class="testament-selection" id="newtestament" onclick="toggleTestament('New Testament');">New Testament</div>
-                            </div>
-                        </div>
-                        <div class="dropdown">
-                            <div class="cover" id="sort-button">
-                                <span id="sort-full"></span>
-                                <img id="sort-img" src="assets/arrow-down.svg" width="15">
-                            </div>
-                            <div id="sort-content" class="content" style="display: none;">
-                                <span class="description">Select sort</span>
-                                <div class="options">
-                                    <div class="clickable checked" id="new">New</div>
-                                    <div class="clickable" id="old">Old</div>
-                                    <div class="clickable" id="top">Top</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dropdown mobile-dropdown">
-                            <div class="cover" id="pastors-button">
-                                <span id="pastors-full">Pastor(s)</span>
-                                <img id="pastors-img" src="assets/arrow-down.svg" width="15">
-                            </div>
-                            <div id="pastors-content" class="content" style="display: none;">
-                                <span class="description">Pastors</span>
-                                <div class="options">
-                                    <div class="clickable" id="rob">Rob</div>
-                                    <div class="clickable" id="mark_lehew">Mark</div>
-                                    <div class="clickable" id="greg_ryan">Greg</div>
-                                    <div class="clickable" id="other">Guests</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="pastors">
-                        <div class="pastor" id="rob-btn" onclick="togglePastor('rob')">Rob</div>
-                        <div class="pastor" id="mark_lehew-btn" onclick="togglePastor('mark_lehew')">Mark</div>
-                        <div class="pastor" id="greg_ryan-btn" onclick="togglePastor('greg_ryan')">Greg</div>
-                        <div class="pastor" id="other-btn" onclick="togglePastor('other')">Guests</div>
-                    </div>
-                </div>
+      <div class="logo-container">
+        <svg
+          onclick="loadFBC()"
+          class="logo"
+          preserveAspectRatio="xMidYMid meet"
+          data-bbox="0.595 0.694 32.311 32.306"
+          viewBox="0.595 0.694 32.311 32.306"
+          xmlns="http://www.w3.org/2000/svg"
+          data-type="color"
+          role="presentation"
+          aria-hidden="true"
+          aria-label=""
+        >
+          <g>
+            <path
+              d="M16.6 33h1.3V15.7h6.2v-2.4h-6.2V6.5h-2.3v6.8H9.4v2.4h6.2v14.7c-7.5-.7-13-7.3-12.4-14.8.7-7.5 7.3-13 14.8-12.4 7.5.7 13 7.3 12.4 14.8-.5 6-5 11-11 12.2v2.5c8.8-1.5 14.7-9.8 13.3-18.6C31.2 5.4 22.9-.5 14.1.9 5.3 2.4-.6 10.7.8 19.5c1.3 7.7 8 13.4 15.8 13.5z"
+              fill="#165f7e"
+              data-color="1"
+            ></path>
+          </g>
+        </svg>
+      </div>
+      <div id="lookup">
+        <div id="upper-search">
+          <h1 class="title">Sermon Search</h1>
+          <div id="search-line">
+            <div id="search-container">
+              <input placeholder="Enter keywords..." id="searchbar" type="text" />
+              <div id="search-button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-search"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
+                  />
+                </svg>
+              </div>
             </div>
-            <hr>
-            <div id="contents">
-
+            <div id="search-right">
+              <div id="livestream" class="pastor" onclick="toggleThisSermon()">Sunday's Sermon</div>
             </div>
+          </div>
+          <div id="filter-grid">
+            <div id="dropdowns">
+              <div class="dropdown">
+                <div class="cover" id="upload-button">
+                  <span id="upload-full"></span>
+                  <img id="upload-img" src="assets/arrow-down.svg" width="15" />
+                </div>
+                <div id="upload-content" class="content" style="display: none">
+                  <span class="description">Select date</span>
+                  <div id="upload-title">Custom Range</div>
+                  <hr />
+                  <div id="upload-dates">
+                    <input
+                      id="start-date"
+                      type="date"
+                      placeholder="Start date"
+                      onchange="
+                        displayUpload();
+                        resetSearch();
+                      "
+                    />
+                    <input
+                      id="end-date"
+                      type="date"
+                      placeholder="End date"
+                      onchange="
+                        displayUpload();
+                        resetSearch();
+                      "
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="dropdown">
+                <div class="cover" id="books-button">
+                  <span id="books-full"></span>
+                  <img id="books-img" src="assets/arrow-down.svg" width="15" />
+                </div>
+                <div id="books-content" class="content" style="display: none">
+                  <div
+                    class="testament-selection"
+                    id="oldtestament"
+                    onclick="toggleTestament('Old Testament')"
+                  >
+                    Old Testament
+                  </div>
+                  <hr />
+                  <div
+                    class="testament-selection"
+                    id="newtestament"
+                    onclick="toggleTestament('New Testament')"
+                  >
+                    New Testament
+                  </div>
+                </div>
+              </div>
+              <div class="dropdown">
+                <div class="cover" id="sort-button">
+                  <span id="sort-full"></span>
+                  <img id="sort-img" src="assets/arrow-down.svg" width="15" />
+                </div>
+                <div id="sort-content" class="content" style="display: none">
+                  <span class="description">Select sort</span>
+                  <div class="options">
+                    <div class="clickable checked" id="new">New</div>
+                    <div class="clickable" id="old">Old</div>
+                    <div class="clickable" id="top">Top</div>
+                  </div>
+                </div>
+              </div>
+              <div class="dropdown mobile-dropdown">
+                <div class="cover" id="pastors-button">
+                  <span id="pastors-full">Pastor(s)</span>
+                  <img id="pastors-img" src="assets/arrow-down.svg" width="15" />
+                </div>
+                <div id="pastors-content" class="content" style="display: none">
+                  <span class="description">Pastors</span>
+                  <div class="options">
+                    <div class="clickable" id="rob">Rob</div>
+                    <div class="clickable" id="mark_lehew">Mark</div>
+                    <div class="clickable" id="greg_ryan">Greg</div>
+                    <div class="clickable" id="other">Guests</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="pastors">
+              <div class="pastor" id="rob-btn" onclick="togglePastor('rob')">Rob</div>
+              <div class="pastor" id="mark_lehew-btn" onclick="togglePastor('mark_lehew')">
+                Mark
+              </div>
+              <div class="pastor" id="greg_ryan-btn" onclick="togglePastor('greg_ryan')">Greg</div>
+              <div class="pastor" id="other-btn" onclick="togglePastor('other')">Guests</div>
+            </div>
+          </div>
         </div>
+        <hr />
+        <div id="contents"></div>
+      </div>
     </div>
 
-    <div id="miniplayer" style="display: none;">
-        <div id="miniplayer-blind">
-            <div id="drag-overlay">
-                <div id="drag-text">
-                    <img src="./assets/grip.svg"/>
-                </div>
-            </div>
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" id="miniplayer-close" onclick="closeMiniplayer()"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M10.9393 12L6.9696 15.9697L8.03026 17.0304L12 13.0607L15.9697 17.0304L17.0304 15.9697L13.0607 12L17.0303 8.03039L15.9696 6.96973L12 10.9393L8.03038 6.96973L6.96972 8.03039L10.9393 12Z" fill="#080341"></path> </g></svg>
+    <div id="miniplayer" style="display: none">
+      <div id="miniplayer-blind">
+        <div id="drag-overlay">
+          <div id="drag-text">
+            <img src="./assets/grip.svg" />
+          </div>
         </div>
-        <iframe src="https://www.youtube.com/watch?v=RuFdirOTpS4" id="video" title="FBC Sermon Viewport" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        <div id="miniplayer-resize">
-            <img src="./assets/resize.svg" width="40px" height="40px"/>
-        </div>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          id="miniplayer-close"
+          onclick="closeMiniplayer()"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+          <g id="SVGRepo_iconCarrier">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M10.9393 12L6.9696 15.9697L8.03026 17.0304L12 13.0607L15.9697 17.0304L17.0304 15.9697L13.0607 12L17.0303 8.03039L15.9696 6.96973L12 10.9393L8.03038 6.96973L6.96972 8.03039L10.9393 12Z"
+              fill="#080341"
+            ></path>
+          </g>
+        </svg>
+      </div>
+      <iframe
+        src="https://www.youtube.com/watch?v=RuFdirOTpS4"
+        id="video"
+        title="FBC Sermon Viewport"
+        frameborder="0"
+        allow="
+          accelerometer;
+          autoplay;
+          clipboard-write;
+          encrypted-media;
+          gyroscope;
+          picture-in-picture;
+          web-share;
+        "
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+      <div id="miniplayer-resize">
+        <img src="./assets/resize.svg" width="40px" height="40px" />
+      </div>
     </div>
     <div id="skeleton"><div>Click on a timestamp to play a sermon</div></div>
 
-    <a href="https://cosmocreeper.github.io/pastorrob" id="soundboard" style="display: none;">Pastor Rob Soundboard</a>
-    <a href="https://faithbiblemd.org/" id="fbc" style="display: none;">Faith Bible Church</a>
+    <a href="https://cosmocreeper.github.io/pastorrob" id="soundboard" style="display: none"
+      >Pastor Rob Soundboard</a
+    >
+    <a href="https://faithbiblemd.org/" id="fbc" style="display: none">Faith Bible Church</a>
 
-    <div id="scroll-to-top" style="display: none;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"/>
-        </svg>
+    <div id="scroll-to-top" style="display: none">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        fill="currentColor"
+        class="bi bi-arrow-up"
+        viewBox="0 0 16 16"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"
+        />
+      </svg>
     </div>
 
-    <div id="screen" style="display: none;">
-        <div id="yapdollar">
-            <img id="slideshow"/>
-        </div>
+    <div id="screen" style="display: none">
+      <div id="yapdollar">
+        <img id="slideshow" />
+      </div>
     </div>
 
     <audio id="funkyyap" src="./assets/sounds/funkyyap.mp3"></audio>
-    
-    <script src="script.js"></script>
-</body>
+
+    <script src="dist/bundle.js"></script>
+  </body>
 </html>

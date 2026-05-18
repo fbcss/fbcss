@@ -3,16 +3,16 @@ name: Update transcripts data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '14 17 * * 0'
-    - cron: '33 17 * * 0'
-    - cron: '47 17 * * 0'
-    - cron: '3 18 * * 0'
-    - cron: '5 9 * * 0'
+    - cron: "14 17 * * 0"
+    - cron: "33 17 * * 0"
+    - cron: "47 17 * * 0"
+    - cron: "3 18 * * 0"
+    - cron: "5 9 * * 0"
     # Every day at 2:03 AM EST (converted to UTC).
-    - cron: '3 7 * * *'
+    - cron: "3 7 * * *"
     # Every December 24th at 7:03 & 7:13 PM EST (converted to UTC).
-    - cron: '03 0 24 12 *'
-    - cron: '13 0 24 12 *'
+    - cron: "03 0 24 12 *"
+    - cron: "13 0 24 12 *"
 
 jobs:
   build:
@@ -21,12 +21,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      
+
       - name: Install necessary tools
         run: |
           sudo apt update && sudo apt install build-essential ffmpeg cmake

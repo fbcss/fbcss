@@ -26,4 +26,3 @@ jobs:
           git add .
           git commit -m "Remove .github"
           git push --force "https://user:${{ secrets.CLONE_TOKEN }}@github.com/fbcss/fbcss.github.io.git" main
-
