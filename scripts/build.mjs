@@ -7,9 +7,10 @@ fs.writeFileSync("transcripts.js", `export const transcripts = ${data};`);
 await Promise.all([
   esbuild.build({
     bundle: true,
+    treeShaking: false,
     minifyWhitespace: true,
     minifySyntax: true,
-    minifyIdentifiers: false,
+    minifyIdentifiers: true,
     entryPoints: ["script.js"],
     outfile: "dist/bundle.js",
   }),
