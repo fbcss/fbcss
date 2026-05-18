@@ -5,4 +5,5 @@ whisper-cli
 ggml-tiny.en.bin
 output.json
 input.mp3
+node_modules
 

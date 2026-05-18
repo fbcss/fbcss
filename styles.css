@@ -1,1080 +1,1112 @@
 @font-face {
-    font-family: "Church";
-    src: url("./assets/fonts/rotis-semi-serif-std-65-bold.otf");
+  font-family: "Church";
+  src: url("./assets/fonts/rotis-semi-serif-std-65-bold.otf");
 }
 
 @font-face {
-    font-family: "Poppins";
-    src: url("./assets/fonts/Poppins-Regular.ttf");
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins-Regular.ttf");
 }
 
 @font-face {
-    font-family: "Papyrus";
-    src: url("./assets/fonts/papyrus.ttf");
+  font-family: "Papyrus";
+  src: url("./assets/fonts/papyrus.ttf");
 }
 
 @font-face {
-    font-family: "Poppins SemiBold";
-    src: url("./assets/fonts/Poppins-SemiBold.ttf");
+  font-family: "Poppins SemiBold";
+  src: url("./assets/fonts/Poppins-SemiBold.ttf");
 }
 
 :root {
-    --color-scheme: "auto";
-    --accent-color: #5d8b9e;
-    --transparent-accent-color: rgba(93, 139, 158, 0.8);
+  --color-scheme: "auto";
+  --accent-color: #5d8b9e;
+  --transparent-accent-color: rgba(93, 139, 158, 0.8);
 }
 
-body[color-scheme="auto"], body[color-scheme="light"] {
-    --bg-color: white;
-    --text-color: black;
-    --container-bg-color: rgba(217, 217, 217, 0.5);
-    --container-hover-bg-color: #d9d9d9;
-    --pastor-hover-bg-color: lightgray;
+body[color-scheme="auto"],
+body[color-scheme="light"] {
+  --bg-color: white;
+  --text-color: black;
+  --container-bg-color: rgba(217, 217, 217, 0.5);
+  --container-hover-bg-color: #d9d9d9;
+  --pastor-hover-bg-color: lightgray;
 
-    @media (prefers-color-scheme: dark) {
-        &:not([color-scheme="light"]) {
-            --bg-color: #0f0f0f;
-            --text-color: white;
-            --container-bg-color: rgba(38, 38, 38, 0.5);
-            --container-hover-bg-color: #d9d9d94f;
-            --pastor-hover-bg-color: #d9d9d92e;
-        }
+  @media (prefers-color-scheme: dark) {
+    &:not([color-scheme="light"]) {
+      --bg-color: #0f0f0f;
+      --text-color: white;
+      --container-bg-color: rgba(38, 38, 38, 0.5);
+      --container-hover-bg-color: #d9d9d94f;
+      --pastor-hover-bg-color: #d9d9d92e;
     }
+  }
 }
 
 body[color-scheme="dark"] {
-    --bg-color: #0f0f0f;
-    --text-color: white;
-    --container-bg-color: rgba(38, 38, 38, 0.5);
-    --container-hover-bg-color: #d9d9d94f;
-    --pastor-hover-bg-color: #d9d9d92e;
+  --bg-color: #0f0f0f;
+  --text-color: white;
+  --container-bg-color: rgba(38, 38, 38, 0.5);
+  --container-hover-bg-color: #d9d9d94f;
+  --pastor-hover-bg-color: #d9d9d92e;
 }
 
 body {
-    font-family: "Poppins";
-    margin: 0;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+  font-family: "Poppins";
+  margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 ::selection {
-    background-color: var(--accent-color);
-    color: white;
+  background-color: var(--accent-color);
+  color: white;
 }
 
 .video-date {
-    font-size: 13px;
-    color: gray;
-    font-family: "Poppins";
-    margin-bottom: 8px;
+  font-size: 13px;
+  color: gray;
+  font-family: "Poppins";
+  margin-bottom: 8px;
 }
 
 .video {
-    margin-top: 15px;
-    margin-bottom: 15px;
-    position: relative;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  position: relative;
 }
 
 .video-grid {
-    display: grid;
-    grid-template-columns: min(max(40vw, 500px), calc(926px - 190px - 8px)) auto 50px;
-    position: relative;
-    width: calc(min(max(40vw, 500px), calc(926px - 190px - 8px)) + 58px);
+  display: grid;
+  grid-template-columns: min(max(40vw, 500px), calc(926px - 190px - 8px)) auto 50px;
+  position: relative;
+  width: calc(min(max(40vw, 500px), calc(926px - 190px - 8px)) + 58px);
 }
 
 #past-references {
-    width: calc(max(40vw, 500px) + 3px);
-    font-family: "Poppins SemiBold";
-    color: rgb(116, 116, 116);
+  width: calc(max(40vw, 500px) + 3px);
+  font-family: "Poppins SemiBold";
+  color: rgb(116, 116, 116);
 }
 
 #past-references hr {
-    border-color: rgb(116, 116, 116) !important;
+  border-color: rgb(116, 116, 116) !important;
 }
 
 .tc {
-    height: 100%;
+  height: 100%;
 }
 
-.thumbnail, .sermon-thumbnail {
-    cursor: pointer;
-    transition: all 100ms ease;
-    position: sticky;
-    top: 5px;
+.thumbnail,
+.sermon-thumbnail {
+  cursor: pointer;
+  transition: all 100ms ease;
+  position: sticky;
+  top: 5px;
 }
 
-.thumbnail:hover, .sermon-thumbnail:hover {
-    transform: translateX(5%);
+.thumbnail:hover,
+.sermon-thumbnail:hover {
+  transform: translateX(5%);
 }
 
 .snippet {
-    background-color: rgba(217, 217, 217, 0.5);
-    margin: 5px 0;
-    min-height: 80px;
-    position: relative;
-    width: calc(max(40vw, 500px) - 5px);
-    max-width: calc(926px - 190px - 8px);
+  background-color: rgba(217, 217, 217, 0.5);
+  margin: 5px 0;
+  min-height: 80px;
+  position: relative;
+  width: calc(max(40vw, 500px) - 5px);
+  max-width: calc(926px - 190px - 8px);
 }
 
 .snippet:first-child {
-    margin: 0;
-    margin-bottom: 5px;
+  margin: 0;
+  margin-bottom: 5px;
 }
 
 .snippet:last-child {
-    margin: 0;
-    margin-top: 5px;
+  margin: 0;
+  margin-top: 5px;
 }
 
 .snippet:only-child {
-    margin: 0;
+  margin: 0;
 }
 
 .time {
-    background-color: white;
-    border-radius: 8px;
-    display: inline-block;
-    width: 52px;
-    height: 32px;
-    padding: 5px;
-    margin: 0 20px;
-    line-height: 32px;
-    text-align: center;
-    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.1);
-    transition: all 400ms ease;
-    user-select: none;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--accent-color);
-    cursor: pointer;
+  background-color: white;
+  border-radius: 8px;
+  display: inline-block;
+  width: 52px;
+  height: 32px;
+  padding: 5px;
+  margin: 0 20px;
+  line-height: 32px;
+  text-align: center;
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.1);
+  transition: all 400ms ease;
+  user-select: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent-color);
+  cursor: pointer;
 }
 
 .time:hover {
-    background-color: var(--accent-color);
-    color: white;
+  background-color: var(--accent-color);
+  color: white;
 }
 
 .line {
-    display: inline-block;
-    width: 80%;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 120px;
-    width: calc(100% - 153px);
+  display: inline-block;
+  width: 80%;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 120px;
+  width: calc(100% - 153px);
 }
 
 .highlight {
-    color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .bracket {
-    width: 3px;
-    height: 100%;
-    background-color: black;
+  width: 3px;
+  height: 100%;
+  background-color: black;
 }
 
 #container {
-    width: calc(209px + 926px);
-    height: 100%;
-    display: grid;
-    grid-template-columns: 209px 926px;
-    margin-top: 35px;
+  width: calc(209px + 926px);
+  height: 100%;
+  display: grid;
+  grid-template-columns: 209px 926px;
+  margin-top: 35px;
 }
 
 .logo {
-    width: 138px;
-    height: 138px;
-    margin-left: 38px;
-    cursor: pointer;
+  width: 138px;
+  height: 138px;
+  margin-left: 38px;
+  cursor: pointer;
 }
 
 .title {
-    font-family: "Church";
-    margin: 0;
-    margin-bottom: 10px;
+  font-family: "Church";
+  margin: 0;
+  margin-bottom: 10px;
 }
 
 #upper-search {
-    display: block;
-    position: relative;
-    z-index: 200;
+  display: block;
+  position: relative;
+  z-index: 200;
 }
 
 #lookup hr {
-    border: 1.4px solid black;
+  border: 1.4px solid black;
 }
 
 #search-container {
-    height: 58px;
+  height: 58px;
 }
 
-#search-container, #searchbar {
-    position: relative;
-    width: 655px;
-    border-radius: 28px;
-    background-color: var(--accent-color);
-    color: white;
-    font-family: "Poppins";
-    font-weight: 400;
-    font-size: 16px;
+#search-container,
+#searchbar {
+  position: relative;
+  width: 655px;
+  border-radius: 28px;
+  background-color: var(--accent-color);
+  color: white;
+  font-family: "Poppins";
+  font-weight: 400;
+  font-size: 16px;
 }
 
 #searchbar {
-    width: 600px;
-    height: 56px;
-    padding: 0;
+  width: 600px;
+  height: 56px;
+  padding: 0;
 }
 
 #searchbar::selection {
-    background-color: white;
-    color: var(--accent-color);
+  background-color: white;
+  color: var(--accent-color);
 }
 
 #search-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 45px;
+  transition: all 100ms ease;
+  border: 1px solid transparent;
+  z-index: 20;
+}
+
+#search-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+#search-button:active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+#searchbar {
+  border: none;
+  outline: none;
+  text-indent: 20px;
+}
+
+#searchbar::placeholder {
+  color: lightgray !important;
+}
+
+#filter-grid {
+  margin-top: 5px;
+  width: 100%;
+  position: relative;
+  color: black;
+  display: flex;
+}
+
+#dropdowns {
+  display: flex;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown .cover {
+  color: gray;
+  border-radius: 8px;
+  background-color: #d9d9d9;
+  padding: 4px 30px 4px 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 3px;
+  position: relative;
+  user-select: none;
+}
+
+.dropdown .cover .value,
+.dropdown .cover img {
+  color: black;
+  pointer-events: none;
+}
+
+.dropdown .cover span {
+  pointer-events: none;
+}
+
+.dropdown .cover img {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 10px;
+}
+
+.dropdown .content {
+  position: absolute;
+  z-index: 100;
+  top: 40px;
+  left: 5px;
+  background-color: rgb(255, 255, 255);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#upload-title {
+  font-family: "Poppins SemiBold";
+  font-size: 20px;
+  width: 100%;
+  display: block !important;
+  margin-left: 14px;
+  margin-top: 5px;
+}
+
+#upload-content .description {
+  margin-left: 15px;
+}
+
+.dropdown-grid {
+  width: 91%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid !important;
+  grid-template-columns: auto auto;
+}
+
+.dropdown-actions {
+  display: grid !important;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  grid-template-columns: 50% 50%;
+}
+
+.dropdown-actions div {
+  position: relative;
+}
+
+.ok-con {
+  text-align: right;
+}
+
+.cancel,
+.ok {
+  border-radius: 8px;
+  user-select: none;
+  transition: all 100ms ease;
+  width: 65px !important;
+  height: 25px !important;
+  display: inline-block !important;
+  text-align: center;
+  line-height: 25px;
+  margin: 8px;
+  font-size: 13px;
+}
+
+#books-content .cancel,
+#books-content .ok {
+  width: 55px !important;
+}
+
+.cancel:hover,
+.ok:hover {
+  background-color: gray;
+  color: white;
+}
+
+.cancel:active,
+.ok:active {
+  background-color: rgb(157, 157, 157);
+  color: black;
+}
+
+#upload-dates {
+  display: flex;
+}
+
+.dropdown input[type="text"],
+.dropdown input[type="date"] {
+  text-align: left;
+  border: none;
+  outline: none;
+  padding: 5px;
+  display: inline;
+  width: 80px;
+  border: 1px solid black;
+  border-radius: 0;
+  height: 25px;
+  margin-left: 12px;
+}
+
+.dropdown input[type="text"] {
+  text-align: center;
+}
+
+.dropdown .content .description {
+  font-size: 10px;
+  margin-left: 10px;
+  user-select: none;
+}
+
+.dropdown .options {
+  position: absolute;
+  left: 0;
+  top: 30px;
+  width: 100%;
+  text-indent: 10px;
+  user-select: none;
+}
+
+.dropdown .clickable {
+  display: block !important;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  user-select: none;
+  transition: all 100ms ease;
+}
+
+.dropdown .clickable:hover {
+  background-color: gray;
+  color: white;
+}
+
+.dropdown .clickable:active,
+.dropdown .item.checked {
+  background-color: rgb(183, 183, 183);
+  color: black;
+}
+
+.dropdown .checked {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+}
+
+.book {
+  width: 100%;
+  display: block !important;
+  text-indent: 7px;
+  user-select: none;
+  transition: all 100ms ease;
+  font-size: 12px;
+}
+
+.book:hover,
+.testament-selection:hover {
+  background-color: gray;
+  color: white;
+}
+
+.book:active,
+.testament-selection:active {
+  background-color: rgb(183, 183, 183) !important;
+  color: black !important;
+}
+
+.testament-selection {
+  display: block !important;
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  text-indent: 7px;
+  transition: all 100ms ease;
+  user-select: none;
+  color: rgba(0, 0, 0, 0.75);
+  font-family: "Poppins SemiBold";
+}
+
+.testament-selection:first-of-type {
+  margin-top: 9px;
+}
+
+#pastors {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 5px;
+}
+
+.pastor {
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  margin: 1px;
+  padding: 5px 10px;
+  font-size: 14px;
+  user-select: none;
+  position: relative;
+  transition: all 100ms ease;
+}
+
+.pastor:hover {
+  background-color: var(--pastor-hover-bg-color);
+}
+
+.pastor.checked {
+  background-color: var(--accent-color);
+  color: white;
+  padding-left: 25px;
+}
+
+.pastor svg {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 5px;
+}
+
+.arrow.disabled {
+  background-color: rgba(0, 0, 0, 0.01);
+}
+
+#match-count,
+.bold-text {
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.bold {
+  font-family: "Poppins";
+  font-size: 12px;
+}
+
+.bold::before {
+  content: "> ";
+}
+
+#no-results {
+  margin-bottom: 20px;
+}
+
+#load-more {
+  width: 655px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid black;
+  line-height: 40px;
+  height: 40px;
+  transition: all 200ms ease;
+  margin-bottom: 25px;
+  user-select: none;
+}
+
+#load-more:hover {
+  background-color: var(--accent-color);
+  color: white;
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid transparent;
+}
+
+#miniplayer,
+#skeleton {
+  position: fixed;
+  right: 20px;
+  transform: translateY(-50%);
+  top: calc(50% + 10px);
+  min-width: 155px;
+  min-height: calc(155px / 16 * 9 + 34px);
+  width: calc(100vw - 926px - 206px - 60px);
+  height: calc((100vw - 926px - 206px - 60px) / 16 * 9 + 34px);
+  z-index: 900;
+}
+
+#miniplayer-blind {
+  width: 100%;
+  height: 34px;
+  display: grid;
+  grid-template-columns: calc(100% - 34px) 34px;
+  background-color: rgba(217, 217, 217, 0.5);
+  color: white;
+}
+
+#miniplayer-resize {
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 900000000000000000000000000000000000000;
+  cursor: nwse-resize;
+}
+
+#miniplayer-resize img {
+  filter: invert(0%) sepia(4%) saturate(15%) hue-rotate(209deg) brightness(88%) contrast(100%);
+}
+
+#drag-overlay {
+  cursor: grab;
+  height: 34px;
+}
+
+#drag-text {
+  pointer-events: none;
+  text-indent: 5px;
+  height: 34px;
+}
+
+#drag-text img {
+  height: 34px;
+  width: 34px;
+}
+
+#miniplayer-close {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+#miniplayer-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+#miniplayer iframe {
+  width: 100%;
+  height: calc(100% - 34px);
+}
+
+#resize-handle {
+  cursor: nwse-resize;
+  text-align: right;
+  border-radius: 50%;
+  z-index: 200000000000;
+}
+
+#scroll-to-top {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  color: white;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  line-height: 50px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 200ms ease;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+#scroll-to-top:hover {
+  background-color: var(--transparent-accent-color);
+  box-shadow: none;
+}
+
+.threed {
+  text-shadow:
+    0 1px 0 yellow,
+    0 2px 0 yellow,
+    0 3px 0 yellow,
+    0 4px 0 yellow,
+    0 5px 0 yellow,
+    0 6px 0 yellow,
+    0 7px 0 yellow,
+    0 8px 0 yellow,
+    0 9px 0 yellow,
+    0 10px 0 yellow,
+    0 11px 0 yellow,
+    0 12px 0 yellow,
+    0 20px 30px rgba(0, 0, 0, 0.5);
+}
+
+.papyrus {
+  font-family: "Papyrus" !important;
+}
+
+.sermon {
+  display: grid;
+  grid-template-columns: calc(100% - (13px + 180px)) 13px 180px;
+  position: relative;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  min-height: 100px;
+}
+
+.sermon:last-child {
+  margin-bottom: 70px;
+}
+
+.container {
+  background-color: var(--container-bg-color);
+  font-family: "Poppins";
+  position: relative;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.container:hover {
+  background-color: var(--container-hover-bg-color);
+}
+
+.container div:first-child {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-right: 10px;
+  padding-left: 20px;
+  min-height: 80px;
+}
+
+.sermon-bracket {
+  margin-left: 5px;
+  border-left: 3px solid black;
+}
+
+.sermon-thumbnail {
+  min-height: 100px;
+}
+
+#search-line {
+  position: relative;
+}
+
+#search-right {
+  width: calc(928.667px - 655px);
+  height: 58px;
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+#livestream {
+  color: black;
+  position: absolute;
+  left: 50%;
+  display: inline;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 130px;
+  text-align: center;
+  border-radius: 30px;
+}
+
+.pastor,
+#livestream {
+  color: var(--text-color);
+}
+
+#livestream.checked {
+  color: white;
+}
+
+.mobile-dropdown {
+  display: none;
+}
+
+.mobile-title {
+  display: none;
+}
+
+#upload-content {
+  min-width: 220px;
+}
+
+@media screen and (max-width: 1439px) {
+  .logo-container * {
+    display: none;
+  }
+
+  h1.title {
+    display: none;
+  }
+
+  #container {
+    margin-left: 20px;
+    grid-template-columns: 0 926px;
+    margin-top: 0;
+  }
+
+  #miniplayer,
+  #skeleton {
+    width: calc(100vw - 926px - 70px);
+    height: calc((100vw - 926px - 70px) / 16 * 9 + 34px);
+  }
+
+  .logo {
+    width: 58px;
+    height: 61px;
+    display: inline-block;
+  }
+
+  .title {
+    display: inline-block;
+    font-size: 35px;
+    line-height: 61px;
+  }
+
+  .mobile-title {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+}
+
+@media screen and (max-width: 1135px) {
+  #upload-content {
+    width: 224.75px;
+  }
+
+  #books-content {
+    width: 131.967px;
+  }
+
+  #sort-content {
+    width: 137.45px;
+  }
+
+  #pastors,
+  #skeleton {
+    display: none !important;
+  }
+
+  #pastors-content {
+    width: 100px;
+    height: 200px;
+  }
+
+  .mobile-dropdown {
+    display: inline-block;
+  }
+
+  #search-right {
+    position: relative;
+    width: 100%;
+    height: 42px;
+    margin-top: 7px;
+  }
+
+  #livestream {
+    display: block;
+    position: relative;
+    width: calc(90vw - 10px);
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 28px;
+    margin: 0;
+  }
+
+  #livestream.checked {
+    width: calc(90vw - 10px);
+  }
+
+  #livestream svg {
+    left: 10px;
+  }
+
+  .sermon {
+    display: block;
+    min-height: 80px;
+  }
+
+  .mobile-thumbnail {
+    height: 80px;
+    cursor: pointer;
+    transition: all 100ms ease;
+    margin-left: auto;
+  }
+
+  .mobile-thumbnail:hover {
+    transform: translateX(5%);
+  }
+
+  .container {
+    display: flex;
+    font-size: 12px;
+    width: 100%;
+    min-height: 80px;
+  }
+
+  #contents {
+    width: 90vw;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .video-grid {
+    width: 90vw;
+    grid-template-columns: calc(90vw - 3px) auto;
+  }
+
+  .snippet {
+    width: calc(90vw - 8px);
+    max-width: none;
+  }
+
+  .logo {
+    width: 58px;
+    height: 61px;
+    display: inline-block;
+    margin-left: auto;
+  }
+
+  .title {
+    display: inline-block;
+    font-size: 35px;
+    line-height: 61px;
+    margin-right: auto;
+  }
+
+  #container {
+    width: 90vw;
+    grid-template-columns: 0 auto;
+  }
+
+  #lookup {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  #search-container {
+    width: 90vw;
+  }
+
+  #searchbar {
+    width: calc(90vw - 50px);
+  }
+
+  #search-container {
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+
+  #lookup hr {
+    width: 90vw;
+    margin-top: 50px;
+  }
+
+  #filter-grid {
+    width: 90vw;
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+
+  #upper-search {
+    height: 100px;
+  }
+
+  #load-more {
+    margin-bottom: 70px;
+    width: 100%;
+  }
+
+  .dropdown .cover {
+    color: black;
+    width: auto;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+  }
+
+  #upload-full,
+  #sort-full,
+  #books-full,
+  #pastors-full {
+    font-size: 11px;
+  }
+
+  #upload-img,
+  #sort-img,
+  #books-img,
+  #pastors-img {
+    width: 12px;
+    height: 12px;
+  }
+
+  #pastors-content .options .clickable {
+    position: relative;
+  }
+
+  #pastors-content .options .clickable svg {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     right: 5px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 45px;
-    transition: all 100ms ease;
-    border: 1px solid transparent;
-    z-index: 20;
-}
+  }
 
-#search-button:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(5px);
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
-#search-button:active {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-#searchbar {
-    border: none;
-    outline: none;
-    text-indent: 20px;
-}
-
-#searchbar::placeholder {
-    color: lightgray !important;
-}
-
-#filter-grid {
-    margin-top: 5px;
-    width: 100%;
-    position: relative;
-    color: black;
-    display: flex;
-}
-
-#dropdowns {
-    display: flex;
-}
-
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown .cover {
-    color: gray;
-    border-radius: 8px;
-    background-color: #D9D9D9;
-    padding: 4px 30px 4px 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin: 3px;
-    position: relative;
-    user-select: none;
-}
-
-.dropdown .cover .value, .dropdown .cover img {
-    color: black;
-    pointer-events: none;
-}
-
-.dropdown .cover span {
-    pointer-events: none;
-}
-
-.dropdown .cover img {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 10px;
-}
-
-.dropdown .content {
-    position: absolute;
-    z-index: 100;
-    top: 40px;
-    left: 5px;
-    background-color: rgb(255, 255, 255);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-#upload-title {
-    font-family: "Poppins SemiBold";
-    font-size: 20px;
-    width: 100%;
-    display: block !important;
-    margin-left: 14px;
-    margin-top: 5px;
-}
-
-#upload-content .description {
-    margin-left: 15px;
-}
-
-.dropdown-grid {
-    width: 91%;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: grid !important;
-    grid-template-columns: auto auto;
-}
-
-.dropdown-actions {
-    display: grid !important;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    grid-template-columns: 50% 50%;
-}
-
-.dropdown-actions div {
-    position: relative;
-}
-
-.ok-con {
-    text-align: right;
-}
-
-.cancel, .ok {
-    border-radius: 8px;
-    user-select: none;
-    transition: all 100ms ease;
-    width: 65px !important;
-    height: 25px !important;
-    display: inline-block !important;
-    text-align: center;
-    line-height: 25px;
-    margin: 8px;
-    font-size: 13px;
-}
-
-#books-content .cancel, #books-content .ok {
+  #pastors-content .cancel {
     width: 55px !important;
-}
+  }
 
-.cancel:hover, .ok:hover {
-    background-color: gray;
-    color: white;
-}
+  #pastors-content .ok {
+    width: 25px !important;
+  }
 
-.cancel:active, .ok:active {
-    background-color: rgb(157, 157, 157);
-    color: black;
-}
-
-#upload-dates {
-    display: flex;
-}
-
-.dropdown input[type="text"], .dropdown input[type="date"] {
-    text-align: left;
-    border: none;
-    outline: none;
-    padding: 5px;
-    display: inline;
-    width: 80px;
-    border: 1px solid black;
-    border-radius: 0;
-    height: 25px;
-    margin-left: 12px;
-}
-
-.dropdown input[type="text"] {
-    text-align: center;
-}
-
-.dropdown .content .description {
-    font-size: 10px;
-    margin-left: 10px;
-    user-select: none;
-}
-
-.dropdown .options {
-    position: absolute;
-    left: 0;
-    top: 30px;
-    width: 100%;
-    text-indent: 10px;
-    user-select: none;
-}
-
-.dropdown .clickable {
-    display: block !important;
-    width: 100%;
-    height: 40px;
-    line-height: 40px;
-    user-select: none;
-    transition: all 100ms ease;
-}
-
-.dropdown .clickable:hover {
-    background-color: gray;
-    color: white;
-}
-
-.dropdown .clickable:active, .dropdown .item.checked {
-    background-color: rgb(183, 183, 183);
-    color: black;
-}
-
-.dropdown .checked {
-    background-color: var(--accent-color) !important;
-    color: white !important;
-}
-
-.book {
-    width: 100%;
-    display: block !important;
-    text-indent: 7px;
-    user-select: none;
-    transition: all 100ms ease;
-    font-size: 12px;
-}
-
-.book:hover, .testament-selection:hover {
-    background-color: gray;
-    color: white;
-}
-
-.book:active, .testament-selection:active {
-    background-color: rgb(183, 183, 183) !important;
-    color: black !important;
-}
-
-.testament-selection {
-    display: block !important;
-    font-size: 14px;
-    margin-top: 10px;
-    margin-bottom: 4px;
-    text-indent: 7px;
-    transition: all 100ms ease;
-    user-select: none;
-    color: rgba(0, 0, 0, 0.75);
-    font-family: "Poppins SemiBold";
-}
-
-.testament-selection:first-of-type {
-    margin-top: 9px;
-}
-
-#pastors {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-    gap: 5px;
-}
-
-.pastor {
-    border: 1px solid var(--accent-color);
-    border-radius: 8px;
-    margin: 1px;
-    padding: 5px 10px;
-    font-size: 14px;
-    user-select: none;
-    position: relative;
-    transition: all 100ms ease;
-}
-
-.pastor:hover {
-    background-color: var(--pastor-hover-bg-color);
-}
-
-.pastor.checked {
-    background-color: var(--accent-color);
-    color: white;
-    padding-left: 25px;
-}
-
-.pastor svg {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 5px;
-}
-
-.arrow.disabled {
-    background-color: rgba(0, 0, 0, 0.01);
-}
-
-#match-count, .bold-text {
-    font-weight: bold;
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-.bold {
-    font-family: "Poppins";
-    font-size: 12px;
-}
-
-.bold::before {
-    content: "> ";
-}
-
-#no-results {
-    margin-bottom: 20px;
-}
-
-#load-more {
-    width: 655px;
-    text-align: center;
-    border-radius: 8px;
-    border: 1px solid black;
-    line-height: 40px;
-    height: 40px;
-    transition: all 200ms ease;
-    margin-bottom: 25px;
-    user-select: none;
-}
-
-#load-more:hover {
-    background-color: var(--accent-color);
-    color: white;
-    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.1);
-    border: 1px solid transparent;
-}
-
-#miniplayer, #skeleton {
-    position: fixed;
-    right: 20px;
-    transform: translateY(-50%);
-    top: calc(50% + 10px);
-    min-width: 155px;
-    min-height: calc(155px / 16 * 9 + 34px);
-    width: calc(100vw - 926px - 206px - 60px);
-    height: calc((100vw - 926px - 206px - 60px) / 16 * 9 + 34px);
-    z-index: 900;
-}
-
-#miniplayer-blind {
-    width: 100%;
-    height: 34px;
-    display: grid;
-    grid-template-columns: calc(100% - 34px) 34px;
-    background-color: rgba(217, 217, 217, 0.5);
-    color: white;
-}
-
-#miniplayer-resize {
-    width: 18px;
-    height: 18px;
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
-    z-index: 900000000000000000000000000000000000000;
-    cursor: nwse-resize;
-}
-
-#miniplayer-resize img {
-    filter: invert(0%) sepia(4%) saturate(15%) hue-rotate(209deg) brightness(88%) contrast(100%);
-}
-
-#drag-overlay {
-    cursor: grab;
-    height: 34px;
-}
-
-#drag-text {
-    pointer-events: none;
-    text-indent: 5px;
-    height: 34px;
-}
-
-#drag-text img {
-    height: 34px;
-    width: 34px;
-}
-
-#miniplayer-close {
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-}
-
-#miniplayer-close:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-#miniplayer iframe {
-    width: 100%;
-    height: calc(100% - 34px);
-}
-
-#resize-handle {
-    cursor: nwse-resize;
-    text-align: right;
-    border-radius: 50%;
-    z-index: 200000000000;
-}
-
-#scroll-to-top {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    border-radius: 50%;
-    background-color: var(--accent-color);
-    color: white;
-    width: 50px;
-    height: 50px;
-    text-align: center;
-    line-height: 50px;
-    font-size: 20px;
-    cursor: pointer;
-    transition: all 200ms ease;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-}
-
-#scroll-to-top:hover {
-    background-color: var(--transparent-accent-color);
-    box-shadow: none;
-}
-
-.threed {
-    text-shadow: 0 1px 0 yellow, 0 2px 0 yellow,
-                0 3px 0 yellow, 0 4px 0 yellow,
-                0 5px 0 yellow, 0 6px 0 yellow,
-                0 7px 0 yellow, 0 8px 0 yellow,
-                0 9px 0 yellow, 0 10px 0 yellow,
-                0 11px 0 yellow, 0 12px 0 yellow,
-                0 20px 30px rgba(0, 0, 0, 0.5);
-}
-
-.papyrus {
-    font-family: "Papyrus" !important;
-}
-
-.sermon {
-    display: grid;
-    grid-template-columns: calc(100% - (13px + 180px)) 13px 180px;
-    position: relative;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    min-height: 100px;
-}
-
-.sermon:last-child {
-    margin-bottom: 70px;
-}
-
-.container {
-    background-color: var(--container-bg-color);
-    font-family: "Poppins";
-    position: relative;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.container:hover {
-    background-color: var(--container-hover-bg-color);
-}
-
-.container div:first-child {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    padding-right: 10px;
-    padding-left: 20px;
-    min-height: 80px;
-}
-
-.sermon-bracket {
-    margin-left: 5px;
-    border-left: 3px solid black;
-}
-
-.sermon-thumbnail {
-    min-height: 100px;
-}
-
-#search-line {
-    position: relative;
-}
-
-#search-right {
-    width: calc(928.667px - 655px);
-    height: 58px;
-    display: inline-block;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
-#livestream {
-    color: black;
-    position: absolute;
+  #miniplayer,
+  #skeleton {
+    width: calc(min(calc(35vh / 9 * 16), 90vw));
+    height: calc(min(35vh, calc(90vw / 16 * 9)) + 34px);
+    top: 100%;
     left: 50%;
-    display: inline;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 130px;
-    text-align: center;
-    border-radius: 30px;
-}
+    transform: translate(-50%, -120%);
+    z-index: 200000;
+  }
 
-.pastor, #livestream {
-    color: var(--text-color);
-}
+  #filter-grid {
+    height: 40px;
+  }
 
-#livestream.checked {
-    color: white;
-}
+  #dropdowns {
+    display: flex !important;
+    justify-content: space-evenly;
+    width: 90vw;
+  }
 
-.mobile-dropdown {
+  #past-references {
+    width: 100%;
+  }
+
+  #past-references hr {
+    margin-top: 25px;
+  }
+
+  .thumbnail {
     display: none;
-}
-
-.mobile-title {
-    display: none;
-}
-
-#upload-content {
-    min-width: 220px;
-}
-
-@media screen and (max-width: 1439px) {
-    .logo-container * {
-        display: none;
-    }
-
-    h1.title {
-        display: none;
-    }
-
-    #container {
-        margin-left: 20px;
-        grid-template-columns: 0 926px;
-        margin-top: 0;
-    }
-
-    #miniplayer, #skeleton {
-        width: calc(100vw - 926px - 70px);
-        height: calc((100vw - 926px - 70px) / 16 * 9 + 34px);
-    }
-
-    .logo {
-        width: 58px;
-        height: 61px;
-        display: inline-block;
-    }
-
-    .title {
-        display: inline-block;
-        font-size: 35px;
-        line-height: 61px;
-    }
-
-    .mobile-title {
-        width: 100%;
-        display: flex;
-        gap: 10px;
-        margin-top: 10px;
-    }
-}
-
-@media screen and (max-width: 1135px) {
-    #upload-content {
-        width: 224.75px;
-    }
-
-    #books-content {
-        width: 131.967px;
-    }
-
-    #sort-content {
-        width: 137.45px;
-    }
-
-    #pastors, #skeleton {
-        display: none !important;
-    }
-
-    #pastors-content {
-        width: 100px;
-        height: 200px;
-    }
-
-    .mobile-dropdown {
-        display: inline-block;
-    }
-
-    #search-right {
-        position: relative;
-        width: 100%;
-        height: 42px;
-        margin-top: 7px;
-    }
-
-    #livestream {
-        display: block;
-        position: relative;
-        width: calc(90vw - 10px);
-        padding-left: 0;
-        padding-right: 0;
-        border-radius: 28px;
-        margin: 0;
-    }
-
-    #livestream.checked {
-        width: calc(90vw - 10px);
-    }
-
-    #livestream svg {
-        left: 10px;
-    }
-
-    .sermon {
-        display: block;
-        min-height: 80px;
-    }
-
-    .mobile-thumbnail {
-        height: 80px;
-        cursor: pointer;
-        transition: all 100ms ease;
-        margin-left: auto;
-    }
-
-    .mobile-thumbnail:hover {
-        transform: translateX(5%);
-    }
-
-    .container {
-        display: flex;
-        font-size: 12px;
-        width: 100%;
-        min-height: 80px;
-    }
-
-    #contents {
-        width: 90vw;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    .video-grid {
-        width: 90vw;
-        grid-template-columns: calc(90vw - 3px) auto;
-    }
-
-    .snippet {
-        width: calc(90vw - 8px);
-        max-width: none;
-    }
-
-    .logo {
-        width: 58px;
-        height: 61px;
-        display: inline-block;
-        margin-left: auto;
-    }
-
-    .title {
-        display: inline-block;
-        font-size: 35px;
-        line-height: 61px;
-        margin-right: auto;
-    }
-
-    #container {
-        width: 90vw;
-        grid-template-columns: 0 auto;
-    }
-
-    #lookup {
-        position: absolute;
-        top: 90px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    #search-container {
-        width: 90vw;
-    }
-
-    #searchbar {
-        width: calc(90vw - 50px);
-    }
-
-    #search-container {
-        margin-left: 50%;
-        transform: translateX(-50%);
-    }
-
-    #lookup hr {
-        width: 90vw;
-        margin-top: 50px;
-    }
-
-    #filter-grid {
-        width: 90vw;
-        margin-left: 50%;
-        transform: translateX(-50%);
-    }
-
-    #upper-search {
-        height: 100px;
-    }
-
-    #load-more {
-        margin-bottom: 70px;
-        width: 100%;
-    }
-
-    .dropdown .cover {
-        color: black;
-        width: auto;
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        height: 20px;
-    }
-
-    #upload-full, #sort-full, #books-full, #pastors-full {
-        font-size: 11px;
-    }
-    
-    #upload-img, #sort-img, #books-img, #pastors-img {
-        width: 12px;
-        height: 12px;
-    }
-
-    #pastors-content .options .clickable {
-        position: relative;
-    }
-
-    #pastors-content .options .clickable svg {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        right: 5px;
-    }
-
-    #pastors-content .cancel {
-        width: 55px !important;
-    }
-
-    #pastors-content .ok {
-        width: 25px !important;
-    }
-
-    #miniplayer, #skeleton {
-        width: calc(min(calc(35vh / 9 * 16), 90vw));
-        height: calc(min(35vh, calc(90vw / 16 * 9)) + 34px);
-        top: 100%;
-        left: 50%;
-        transform: translate(-50%, -120%);
-        z-index: 200000;
-    }
-
-    #filter-grid {
-        height: 40px;
-    }
-
-    #dropdowns {
-        display: flex !important;
-        justify-content: space-evenly;
-        width: 90vw;
-    }
-
-    #past-references {
-        width: 100%;
-    }
-
-    #past-references hr {
-        margin-top: 25px;
-    }
-
-    .thumbnail {
-        display: none;
-    }
+  }
 }
 
 @media screen and (min-width: 453px) {
-    #dropdowns {
-        display: inline !important;
-        width: auto;
-    }
+  #dropdowns {
+    display: inline !important;
+    width: auto;
+  }
 }
 
 #yapdollar {
-    height: 100vh;
-    width: 100vh;
-    z-index: 20000000000000000000000;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: black;
+  height: 100vh;
+  width: 100vh;
+  z-index: 20000000000000000000000;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: black;
 }
 
 #screen {
-    z-index: 90000000000000000000000000000000000000000000000000000000000;
-    position: absolute;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    backdrop-filter: blur(5px);
+  z-index: 90000000000000000000000000000000000000000000000000000000000;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  backdrop-filter: blur(5px);
 }
 
 @media (orientation: portrait) {
-    #yapdollar {
-        height: 100vw;
-        width: 100vw;
-    }
+  #yapdollar {
+    height: 100vw;
+    width: 100vw;
+  }
 }
 
 #transcript-sync {
-    background-color: lightgray;
-    color: black;
-    width: 100%;
-    height: 20vh;
-    position: absolute;
-    bottom: 0;
-    overflow: scroll;
+  background-color: lightgray;
+  color: black;
+  width: 100%;
+  height: 20vh;
+  position: absolute;
+  bottom: 0;
+  overflow: scroll;
 }
 
 #transcript-sync #selected-line {
-    background-color: var(--accent-color);
-    color: white;
+  background-color: var(--accent-color);
+  color: white;
 }
 
 #transcript-sync .sync-line {
-    width: 100%;
-    text-align: center;
-    cursor: pointer;
-    transition: all 100ms ease;
-    position: relative;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  transition: all 100ms ease;
+  position: relative;
 }
 
 #transcript-sync .sync-line:hover {
-    background-color: rgb(160, 160, 160);
+  background-color: rgb(160, 160, 160);
 }
 
 .tooltip {
@@ -1118,69 +1150,70 @@ body {
 }
 
 .tooltiptext::selection {
-    background-color: white;
-    color: var(--accent-color);
+  background-color: white;
+  color: var(--accent-color);
 }
 
 #skeleton {
-    background-color: var(--container-bg-color);
-    color: rgba(128, 128, 128, 0.5);
-    font-family: "Poppins SemiBold";
-    border-radius: 8px;
+  background-color: var(--container-bg-color);
+  color: rgba(128, 128, 128, 0.5);
+  font-family: "Poppins SemiBold";
+  border-radius: 8px;
 }
 
 #skeleton div {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    text-align: center;
-    user-select: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  text-align: center;
+  user-select: none;
 }
 
 #slideshow {
-    max-width: 100%;
-    max-height: 100%;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    left: 50%;
+  max-width: 100%;
+  max-height: 100%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  left: 50%;
 }
 
 #pixel {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 5px;
-    width: 5px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 5px;
+  width: 5px;
 }
 
 .dropdown hr {
-    width: 90% !important;
-    border-width: 1px !important;
-    margin-top: 10px !important;
-    margin-bottom: 20px;
+  width: 90% !important;
+  border-width: 1px !important;
+  margin-top: 10px !important;
+  margin-bottom: 20px;
 }
 
 #books-content hr {
-    width: 90%;
-    margin: 0;
-    margin-top: 10px;
-    margin-left: 50%;
-    transform: translateX(-50%);
+  width: 90%;
+  margin: 0;
+  margin-top: 10px;
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 
 :root[style*="--color-scheme: dark"] {
-    .container:hover {
-        background-color: #d9d9d94f;
-    }
+  .container:hover {
+    background-color: #d9d9d94f;
+  }
 
-    .pastor, #livestream {
-        color: white;
-    }
+  .pastor,
+  #livestream {
+    color: white;
+  }
 
-    .pastor:hover {
-        background-color: #d9d9d92e;
-    }
+  .pastor:hover {
+    background-color: #d9d9d92e;
+  }
 }
