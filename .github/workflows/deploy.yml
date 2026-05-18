@@ -17,12 +17,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm ci
+
+      - name: Build distribution
+        run: pnpm build
+
       - name: Deploy to fbcss.github.io
         run: |
           git config user.name "fbcss"
           git config user.email "fbcss@fbcss.github.io"
           git config --unset-all http.https://github.com/.extraheader
-          rm -rf .github
+          rm -rf .github/ data/ scripts/ node_modules/
+          rm .oxfmtrc.json .gitignore package.json pnpm-*.yaml script.js styles.css
           git add .
-          git commit -m "Remove .github"
+          git commit -m "Deploy latest changes"
           git push --force "https://user:${{ secrets.CLONE_TOKEN }}@github.com/fbcss/fbcss.github.io.git" main
