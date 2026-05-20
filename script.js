@@ -1,6 +1,7 @@
 // Patent pending
 
-import { transcripts } from "./transcripts.js";
+import moment from "moment";
+import transcripts from "transcripts";
 
 const searchBar = document.getElementById("searchbar");
 const contents = document.getElementById("contents");
@@ -806,7 +807,7 @@ document.addEventListener("touchmove", handleResizeMove);
 document.addEventListener("mouseup", handleResizeEnd);
 document.addEventListener("touchend", handleResizeEnd);
 
-const miniplayerLoad = async (id, timestamp) => {
+window.miniplayerLoad = async (id, timestamp) => {
   const miniplayer = document.getElementById("miniplayer");
   const video = document.getElementById("video");
 
@@ -827,7 +828,7 @@ const miniplayerLoad = async (id, timestamp) => {
   video.src = `https://www.youtube.com/embed/${id}?autoplay=1&start=${totalSeconds}&enablejsapi=1`;
 };
 
-const closeMiniplayer = () => {
+window.closeMiniplayer = () => {
   document.getElementById("miniplayer").style.display = "none";
   document.getElementById("skeleton").style.display = "block";
   document.getElementById("video").src = "";
