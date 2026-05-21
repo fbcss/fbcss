@@ -584,6 +584,7 @@ body {
   width: calc(100vw - 926px - 206px - 60px);
   --miniplayer-height: calc((100vw - 926px - 206px - 60px) / 16 * 9);
   z-index: 900;
+  container-type: inline-size;
 }
 
 #skeleton {
@@ -592,6 +593,15 @@ body {
 
 #miniplayer {
   display: none;
+  background: transparent;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+
+  border-radius: 8px;
+  /* Beautiful squircle support for new browsers */
+  @supports (corner-shape: squircle) {
+    border-radius: 15px;
+    corner-shape: squircle;
+  }
 
   &:has(video:not([src=""])) {
     height: var(--miniplayer-height);
@@ -736,6 +746,10 @@ body {
   &:hover {
     opacity: 1;
   }
+  &.overlay-hidden {
+    opacity: 0 !important;
+    cursor: default;
+  }
 
   #video-close {
     position: absolute;
@@ -757,14 +771,16 @@ body {
     top: 50%;
     left: 50%;
     translate: -50% -50%;
-    width: 100px;
-    height: 100px;
+    width: clamp(44px, 20cqw, 100px);
+    height: clamp(44px, 20cqw, 100px);
     background: var(--accent-color);
     border-radius: 50%;
     z-index: 3;
     cursor: default;
 
     & svg {
+      width: clamp(26px, 12cqw, 60px);
+      height: clamp(26px, 12cqw, 60px);
       margin-top: 50%;
       margin-left: 50%;
       translate: -50% -50%;
@@ -871,10 +887,10 @@ body {
 
 /* Bottom row */
 #controls-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   margin-top: 4px;
+  align-items: center;
 }
 
 #video-time-display {
@@ -883,18 +899,21 @@ body {
   font-family: "Poppins";
   user-select: none;
   white-space: nowrap;
+  justify-self: left;
 }
 
 #controls-middle {
   display: flex;
   align-items: center;
   gap: 4px;
+  justify-self: center;
 }
 
 #controls-right {
   display: flex;
   align-items: center;
   gap: 4px;
+  justify-self: end;
 }
 
 .ctrl-btn {
@@ -909,10 +928,21 @@ body {
   justify-content: center;
   transition: background 100ms ease;
   line-height: 1;
+  vertical-align: middle;
 }
 
 .ctrl-btn:hover {
   background: rgba(255,255,255,0.2);
+}
+
+#transcript-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#transcript-btn svg {
+  display: block;
 }
 
 .ctrl-btn.active {
@@ -930,6 +960,8 @@ body {
   font-size: 12px;
   font-family: "Poppins";
   box-sizing: border-box;
+  border: none;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
 
   border-radius: 0 0 8px 8px;
   /* Beautiful squircle support for new browsers */

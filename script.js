@@ -837,6 +837,45 @@ document.addEventListener("touchmove", handleResizeMove);
 document.addEventListener("mouseup", handleResizeEnd);
 document.addEventListener("touchend", handleResizeEnd);
 
+// ── Auto-hide video overlay after 5s of inactivity ──────────────────
+let _overlayHideTimer = null;
+
+const _scheduleOverlayHide = () => {
+  clearTimeout(_overlayHideTimer);
+  _overlayHideTimer = setTimeout(() => {
+    vidOverlay.classList.add("overlay-hidden");
+  }, 3000);
+};
+
+const _cancelOverlayHide = () => {
+  clearTimeout(_overlayHideTimer);
+  vidOverlay.classList.remove("overlay-hidden");
+};
+
+// On hover/touch enter, show overlay and start the countdown
+vidOverlay.addEventListener("mouseenter", () => {
+  _cancelOverlayHide();
+  _scheduleOverlayHide();
+});
+
+// Any pointer movement resets the timer
+vidOverlay.addEventListener("mousemove", () => {
+  _cancelOverlayHide();
+  _scheduleOverlayHide();
+});
+
+// Touch activity: show and restart the countdown
+vidOverlay.addEventListener("touchstart", () => {
+  _cancelOverlayHide();
+  _scheduleOverlayHide();
+}, { passive: true, capture: true });
+
+// When leaving (desktop), cancel the timer and let CSS :hover handle hiding
+vidOverlay.addEventListener("mouseleave", () => {
+  clearTimeout(_overlayHideTimer);
+  vidOverlay.classList.remove("overlay-hidden");
+});
+
 const videoPlay = document.getElementById("video-play");
 videoPlay.addEventListener("click", (e) => {
   e.stopPropagation();
@@ -1002,8 +1041,8 @@ vidOverlay.addEventListener("touchstart", (e) => {
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
-    initialWidth = videoWrapper.offsetWidth;
-    initialHeight = videoWrapper.offsetHeight;
+    initialWidth = embed.offsetWidth;
+    initialHeight = embed.offsetHeight;
   }
 }, { passive: true });
 
@@ -1019,11 +1058,13 @@ vidOverlay.addEventListener("touchmove", (e) => {
     const targetWidth = initialWidth * scaleFactor;
     const targetHeight = initialHeight * scaleFactor;
 
+    const videoRatio = videoElement.videoWidth && videoElement.videoHeight
+      ? videoElement.videoWidth / videoElement.videoHeight
+      : 16 / 9;
+
     if (targetWidth > 200 && targetWidth < window.innerWidth) {
-      videoWrapper.style.width = `${targetWidth}px`;
-    }
-    if (targetHeight > 120 && targetHeight < window.innerHeight) {
-      videoWrapper.style.height = `${targetHeight}px`;
+      embed.style.width = `${targetWidth}px`;
+      embed.style.height = `${targetWidth / videoRatio}px`;
     }
   }
 }, { passive: true });
