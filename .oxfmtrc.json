@@ -1,9 +1,4 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": [
-    "assets/",
-    "data/transcripts.json",
-    "data/id_map.json",
-    "dist/"
-  ]
+  "ignorePatterns": ["assets/", "data/transcripts.json", "data/id_map.json", "dist/"]
 }

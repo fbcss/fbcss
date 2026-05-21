@@ -264,7 +264,7 @@ const loadContents = () => {
             totalLoadedContents++;
             const highlightedLine = instance[1]
               .replace(/[^a-zA-Z0-9 ]/g, "")
-              .replace(new RegExp(`(${keyword})`, "gi"), `<span class="highlight">$1</span>`);
+              .replace(new RegExp(`\\b(${keyword})\\b`, "gi"), `<span class="highlight">$1</span>`);
             videoDiv += `
                             <div class="snippet">
                                 <div onclick="miniplayerLoad('${el.id}', '${
