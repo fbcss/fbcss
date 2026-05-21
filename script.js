@@ -1192,7 +1192,7 @@ const topFunction = () => {
 
 document.getElementById("scroll-to-top").addEventListener("click", topFunction);
 
-const toggleTestament = (testament) => {
+window.toggleTestament = (testament) => {
   const el = testaments[testament];
   let allTestament = true;
   for (const book of Object.values(el)) {
@@ -1236,7 +1236,7 @@ const loadFBC = () => {
   document.getElementById("fbc").click();
 };
 
-const toggleThisSermon = () => {
+window.toggleThisSermon = () => {
   recentSermon = !recentSermon;
   document.getElementById("livestream").classList.toggle("checked");
   if (recentSermon)
