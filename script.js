@@ -874,7 +874,6 @@ window.miniplayerLoad = async (id, timestamp) => {
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
 
   const video = document.getElementById("video");
-
   // Load transcript data for this sermon
   try {
     await transcripts;
@@ -914,8 +913,6 @@ window.miniplayerLoad = async (id, timestamp) => {
 };
 
 window.closeMiniplayer = () => {
-  document.getElementById("miniplayer").style.display = "none";
-  document.getElementById("skeleton").style.display = "block";
   document.getElementById("video").src = "";
   document.getElementById("yt-video").src = "";
   // Reset transcript state
