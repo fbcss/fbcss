@@ -597,9 +597,10 @@ body {
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
 
   border-radius: 8px;
+
   /* Beautiful squircle support for new browsers */
   @supports (corner-shape: squircle) {
-    border-radius: 15px;
+    border-radius: 20px;
     corner-shape: squircle;
   }
 
@@ -615,9 +616,10 @@ body {
 #miniplayer:not(:has(#transcript-panel.hidden)) {
   background: var(--bg-color, white);
   border-radius: 8px 8px 0 0;
+
   /* Beautiful squircle support for new browsers */
   @supports (corner-shape: squircle) {
-    border-radius: 15px 15px 0 0;
+    border-radius: 20px 20px 0 0;
     corner-shape: squircle;
   }
 }
@@ -645,7 +647,8 @@ body {
   height: 34px;
 }
 
-#miniplayer:has(video:not([src=""])) #miniplayer-blind {
+#miniplayer:has(video:not([src=""])) #miniplayer-blind,
+#miniplayer:has(video:not([src=""])) #miniplayer-resize {
   display: none;
 }
 
@@ -655,7 +658,8 @@ body {
   position: absolute;
   bottom: 6px;
   right: 6px;
-  z-index: 900000000000000000000000000000000000000; /* i hate myself */
+  z-index: 900000000000000000000000000000000000000;
+  /* i hate myself */
   cursor: nwse-resize;
 }
 
@@ -689,9 +693,19 @@ body {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
+#video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#miniplayer:has(video[src=""]) #video-container {
+  height: calc(100% - 34px);
+}
+
 #miniplayer iframe {
   width: 100%;
-  height: calc(100% - 34px);
+  height: 100%;
   display: none;
 }
 
@@ -701,12 +715,15 @@ body {
 
 #miniplayer video {
   width: 100%;
+  height: 100%;
   border-radius: 8px;
   vertical-align: bottom;
+  object-fit: contain;
+  min-height: 0;
 
   /* Beautiful squircle support for new browsers */
   @supports (corner-shape: squircle) {
-    border-radius: 15px;
+    border-radius: 20px;
     corner-shape: squircle;
   }
 
@@ -714,12 +731,6 @@ body {
     display: none;
 
     & ~ #video-overlay {
-      display: none;
-    }
-  }
-
-  &:not([src=""]) {
-    & ~ #miniplayer-resize {
       display: none;
     }
   }
@@ -735,17 +746,20 @@ body {
   background: rgba(0, 0, 0, 0.3);
 
   border-radius: 8px;
+
   /* Beautiful squircle support for new browsers */
   @supports (corner-shape: squircle) {
-    border-radius: 15px;
+    border-radius: 20px;
     corner-shape: squircle;
   }
 
   opacity: 0;
   transition: 300ms ease opacity;
+
   &:hover {
     opacity: 1;
   }
+
   &.overlay-hidden {
     opacity: 0 !important;
     cursor: default;
@@ -794,6 +808,7 @@ body {
       #play {
         display: none;
       }
+
       #pause {
         display: block;
       }
@@ -819,7 +834,7 @@ body {
   width: 100%;
   padding: 6px 8px 8px;
   box-sizing: border-box;
-  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
   border-radius: 0 0 8px 8px;
   z-index: 4;
   opacity: 0;
@@ -827,7 +842,8 @@ body {
   pointer-events: none;
 
   @supports (corner-shape: squircle) {
-    border-radius: 0 0 15px 15px;
+    border-radius: 0 0 20px 20px;
+    corner-shape: squircle;
   }
 }
 
@@ -847,7 +863,7 @@ body {
   position: relative;
   width: 100%;
   height: 4px;
-  background: rgba(255,255,255,0.35);
+  background: rgba(255, 255, 255, 0.35);
   border-radius: 2px;
   transition: height 120ms ease;
 }
@@ -878,7 +894,7 @@ body {
   border-radius: 50%;
   pointer-events: none;
   transition: transform 120ms ease;
-  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
 }
 
 #progress-bar-container:hover #progress-bar-thumb {
@@ -932,7 +948,7 @@ body {
 }
 
 .ctrl-btn:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 #transcript-btn {
@@ -947,13 +963,13 @@ body {
 
 .ctrl-btn.active {
   color: var(--accent-color);
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* Transcript panel */
 #transcript-panel {
   background: var(--bg-color, white);
-  border-top: 1px solid rgba(0,0,0,0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
   width: 100%;
   max-height: 140px;
   overflow-y: auto;
@@ -962,11 +978,13 @@ body {
   box-sizing: border-box;
   border: none;
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 
   border-radius: 0 0 8px 8px;
+
   /* Beautiful squircle support for new browsers */
   @supports (corner-shape: squircle) {
-    border-radius: 0 0 15px 15px;
+    border-radius: 0 0 20px 20px;
     corner-shape: squircle;
   }
 
@@ -1009,7 +1027,8 @@ body {
   cursor: nwse-resize;
   text-align: right;
   border-radius: 50%;
-  z-index: 200000000000; /* i hate myself */
+  z-index: 200000000000;
+  /* i hate myself */
 }
 
 #scroll-to-top {
@@ -1553,5 +1572,148 @@ body {
 
   .pastor:hover {
     background-color: #d9d9d92e;
+  }
+}
+
+/* ── Fullscreen Transcript Styling ──────────────────────────────── */
+#miniplayer:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  background: black !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#miniplayer:fullscreen #miniplayer-blind,
+#miniplayer:fullscreen #miniplayer-resize,
+#miniplayer:fullscreen #video-close,
+#miniplayer:fullscreen #video-resizer {
+  display: none !important;
+}
+
+#miniplayer:fullscreen #video-container {
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  height: 100% !important;
+}
+
+#miniplayer:fullscreen #video-overlay {
+  cursor: default !important;
+}
+
+/* Portrait orientation in fullscreen */
+@media (orientation: portrait) {
+  #miniplayer:fullscreen {
+    flex-direction: column !important;
+  }
+
+  #miniplayer:fullscreen #video-container {
+    height: auto !important;
+    /* Allow flex container layout */
+  }
+
+  #miniplayer:fullscreen #transcript-panel:not(.hidden) {
+    display: block !important;
+    width: 100% !important;
+    height: 35vh !important;
+    max-height: 35vh !important;
+    background: var(--bg-color, white) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 0 !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-left: none !important;
+    border-right: none !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Landscape orientation in fullscreen */
+@media (orientation: landscape) {
+  #miniplayer:fullscreen {
+    flex-direction: row !important;
+  }
+
+  #miniplayer:fullscreen.left-side {
+    flex-direction: row-reverse !important;
+  }
+
+  #miniplayer:fullscreen #transcript-panel:not(.hidden) {
+    display: block !important;
+    width: 380px !important;
+    max-width: 35vw !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    background: var(--bg-color, white) !important;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 0 !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-right: none !important;
+    border-top: none !important;
+    overflow-y: auto !important;
+  }
+
+  #miniplayer:fullscreen.left-side #transcript-panel:not(.hidden) {
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2) !important;
+    border-left: none !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* Transcript Sticky Header in Fullscreen */
+.tp-header {
+  display: none;
+}
+
+#miniplayer:fullscreen .tp-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 20px !important;
+  background: var(--bg-color, white) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+}
+
+.tp-title {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--text-color, #1a1a1a) !important;
+  font-family: "Poppins SemiBold", sans-serif !important;
+  letter-spacing: 0.5px !important;
+}
+
+.tp-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 11px !important;
+  font-family: "Poppins", sans-serif !important;
+  font-weight: 500 !important;
+  color: white !important;
+  background: var(--accent-color) !important;
+  border: 1px solid var(--accent-color) !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: background 150ms ease !important;
+}
+
+.tp-action-btn:hover {
+  background: var(--transparent-accent-color) !important;
+  border-color: var(--transparent-accent-color) !important;
+}
+
+.tp-action-btn svg {
+  display: block !important;
+  stroke: currentColor !important;
+}
+
+@media (orientation: portrait) {
+  #miniplayer:fullscreen #tp-switch-side-btn {
+    display: none !important;
   }
 }

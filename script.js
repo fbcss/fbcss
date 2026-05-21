@@ -725,10 +725,11 @@ let startX, startY, initialX, initialY, initialWidth, initialHeight;
 
 const ensureTarget = (e) => {
   if (
-    e.target !== vidOverlay &&
-    e.target !== document.getElementById("drag-overlay")
-  ) return true;
-}
+    (e.target !== vidOverlay && e.target !== document.getElementById("drag-overlay")) ||
+    document.fullscreenElement
+  )
+    return true;
+};
 
 const handleDragStart = (e) => {
   if (ensureTarget(e)) return;
@@ -767,7 +768,7 @@ const handleResizeStart = (e) => {
   startY = e.clientY || (e.touches && e.touches[0].clientY);
   initialWidth = embed.offsetWidth;
   initialHeight = embed.offsetHeight;
-  
+
   e.stopPropagation();
   if (e.cancelable) e.preventDefault();
 };
@@ -784,20 +785,21 @@ const handleResizeMove = (e) => {
   let targetWidth = Math.max(200, initialWidth + dx);
   let targetHeight = Math.max(150, initialHeight + dy);
 
-  const videoRatio = videoElement.videoWidth && videoElement.videoHeight
-    ? videoElement.videoWidth / videoElement.videoHeight
-    : 16 / 9;
+  const videoRatio =
+    videoElement.videoWidth && videoElement.videoHeight
+      ? videoElement.videoWidth / videoElement.videoHeight
+      : 16 / 9;
 
   if (Math.abs(dx) > Math.abs(dy)) {
     targetHeight = targetWidth / videoRatio;
-    
+
     if (targetHeight < 150) {
       targetHeight = 150;
       targetWidth = targetHeight * videoRatio;
     }
   } else {
     targetWidth = targetHeight * videoRatio;
-    
+
     if (targetWidth < 200) {
       targetWidth = 200;
       targetHeight = targetWidth / videoRatio;
@@ -865,15 +867,39 @@ vidOverlay.addEventListener("mousemove", () => {
 });
 
 // Touch activity: show and restart the countdown
-vidOverlay.addEventListener("touchstart", () => {
-  _cancelOverlayHide();
-  _scheduleOverlayHide();
-}, { passive: true, capture: true });
+vidOverlay.addEventListener(
+  "touchstart",
+  () => {
+    _cancelOverlayHide();
+    _scheduleOverlayHide();
+  },
+  { passive: true, capture: true },
+);
 
 // When leaving (desktop), cancel the timer and let CSS :hover handle hiding
 vidOverlay.addEventListener("mouseleave", () => {
   clearTimeout(_overlayHideTimer);
   vidOverlay.classList.remove("overlay-hidden");
+});
+
+vidOverlay.addEventListener("click", (e) => {
+  if (!document.fullscreenElement) return;
+  const isSpecial =
+    e.target.closest("#video-controls") ||
+    e.target.closest("#video-close") ||
+    e.target.closest("#video-play") ||
+    e.target.closest("#video-resizer");
+  if (isSpecial) return;
+
+  const video = document.getElementById("video");
+  const videoPlay = document.getElementById("video-play");
+  if (video.paused) {
+    video.play();
+    videoPlay.className = "";
+  } else {
+    video.pause();
+    videoPlay.className = "paused";
+  }
 });
 
 const videoPlay = document.getElementById("video-play");
@@ -916,7 +942,8 @@ window.miniplayerLoad = async (id, timestamp) => {
   // Load transcript data for this sermon
   try {
     await transcripts;
-    const allSermons = Object.values(transcripts["books"] || {}).flat()
+    const allSermons = Object.values(transcripts["books"] || {})
+      .flat()
       .concat(Object.values(transcripts["guests"] || {}).flat())
       .concat(transcripts["specials"] || [])
       .concat(transcripts["other"] || []);
@@ -1017,57 +1044,78 @@ const _seekFromEvent = (e, video) => {
     _progressDragging = true;
     _seekFromEvent(e, video);
   });
-  pbc.addEventListener("touchstart", (e) => {
-    e.stopPropagation();
-    _progressDragging = true;
-    _seekFromEvent(e, video);
-  }, { passive: true });
+  pbc.addEventListener(
+    "touchstart",
+    (e) => {
+      e.stopPropagation();
+      _progressDragging = true;
+      _seekFromEvent(e, video);
+    },
+    { passive: true },
+  );
   document.addEventListener("mousemove", (e) => {
     if (_progressDragging) _seekFromEvent(e, video);
   });
-  document.addEventListener("touchmove", (e) => {
-    if (_progressDragging) _seekFromEvent(e, video);
-  }, { passive: true });
-  document.addEventListener("mouseup", () => { _progressDragging = false; });
-  document.addEventListener("touchend", () => { _progressDragging = false; });
+  document.addEventListener(
+    "touchmove",
+    (e) => {
+      if (_progressDragging) _seekFromEvent(e, video);
+    },
+    { passive: true },
+  );
+  document.addEventListener("mouseup", () => {
+    _progressDragging = false;
+  });
+  document.addEventListener("touchend", () => {
+    _progressDragging = false;
+  });
 })();
 
 let initialPinchDistance = null;
 
-vidOverlay.addEventListener("touchstart", (e) => {
-  if (e.touches.length === 2) {
-    // Calculate initial straight-line distance between two contact touch coordinates
-    initialPinchDistance = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-    initialWidth = embed.offsetWidth;
-    initialHeight = embed.offsetHeight;
-  }
-}, { passive: true });
-
-vidOverlay.addEventListener("touchmove", (e) => {
-  if (e.touches.length === 2 && initialPinchDistance !== null) {
-    const currentDistance = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-    
-    // Find scale coefficient factor differential
-    const scaleFactor = currentDistance / initialPinchDistance;
-    const targetWidth = initialWidth * scaleFactor;
-    const targetHeight = initialHeight * scaleFactor;
-
-    const videoRatio = videoElement.videoWidth && videoElement.videoHeight
-      ? videoElement.videoWidth / videoElement.videoHeight
-      : 16 / 9;
-
-    if (targetWidth > 200 && targetWidth < window.innerWidth) {
-      embed.style.width = `${targetWidth}px`;
-      embed.style.height = `${targetWidth / videoRatio}px`;
+vidOverlay.addEventListener(
+  "touchstart",
+  (e) => {
+    if (e.touches.length === 2) {
+      // Calculate initial straight-line distance between two contact touch coordinates
+      initialPinchDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY,
+      );
+      initialWidth = embed.offsetWidth;
+      initialHeight = embed.offsetHeight;
     }
-  }
-}, { passive: true });
+  },
+  { passive: true },
+);
+
+vidOverlay.addEventListener(
+  "touchmove",
+  (e) => {
+    if (e.touches.length === 2 && initialPinchDistance !== null) {
+      const currentDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY,
+      );
+
+      // Find scale coefficient factor differential
+      const scaleFactor = currentDistance / initialPinchDistance;
+      const targetWidth = initialWidth * scaleFactor;
+      const targetHeight = initialHeight * scaleFactor;
+
+      const videoRatio =
+        videoElement.videoWidth && videoElement.videoHeight
+          ? videoElement.videoWidth / videoElement.videoHeight
+          : 16 / 9;
+
+      if (targetWidth > 200 && targetWidth < window.innerWidth) {
+        embed.style.width = `${targetWidth}px`;
+        embed.style.height = `${targetWidth / videoRatio}px`;
+      }
+    }
+  },
+  { passive: true },
+);
 
 vidOverlay.addEventListener("touchend", (e) => {
   if (e.touches.length < 2) {
@@ -1113,6 +1161,30 @@ const _buildTranscriptPanel = (transcriptArr) => {
     panel.innerHTML = `<div style="padding:10px;color:gray;font-size:12px">No transcript available.</div>`;
     return;
   }
+
+  // Prepend modern header for fullscreen transcript panel
+  const header = document.createElement("div");
+  header.className = "tp-header";
+  header.innerHTML = `
+    <span class="tp-title">Transcript</span>
+    <button class="tp-action-btn" id="tp-switch-side-btn" title="Switch Side">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+        <path d="M7 16V4M7 4L3 8M7 4L11 8M17 8v12M17 20l-4-4M17 20l4-4"/>
+      </svg>
+      <span>Switch Side</span>
+    </button>
+  `;
+  panel.appendChild(header);
+
+  const switchBtn = header.querySelector("#tp-switch-side-btn");
+  if (switchBtn) {
+    switchBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const player = document.getElementById("miniplayer");
+      player.classList.toggle("left-side");
+    });
+  }
+
   transcriptArr.forEach(([ts, text]) => {
     const line = document.createElement("div");
     line.className = "tp-line";

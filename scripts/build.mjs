@@ -22,12 +22,11 @@ await build({
         }));
 
         build.onLoad({ filter: /.*/, namespace: "virtual" }, async (args) => {
-          const sourceFile = args.path === "transcripts" 
-            ? "data/transcripts.json" 
-            : "data/id_map.json";
-        
+          const sourceFile =
+            args.path === "transcripts" ? "data/transcripts.json" : "data/id_map.json";
+
           const json = await file(sourceFile).json();
-        
+
           return {
             contents: `export default ${JSON.stringify(json)}`,
             loader: "js",
