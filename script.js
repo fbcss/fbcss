@@ -267,11 +267,8 @@ const loadContents = () => {
               .replace(new RegExp(`\\b(${keyword})\\b`, "gi"), `<span class="highlight">$1</span>`);
             videoDiv += `
                             <div class="snippet">
-                                <div onclick="miniplayerLoad('${el.id}', '${
-                                  instance[0]
-                                }')" class="time" style="${
-                                  instance[0].split(":").length - 1 === 1 ? "font-size: 13px;" : ""
-                                }">${instance[0]}</div>
+                                <div onclick="miniplayerLoad('${el.id}', '${instance[0]
+              }')" class="time">${instance[0]}</div>
                                 <div class="line">
                                     ${highlightedLine}
                                 </div>
@@ -288,14 +285,12 @@ const loadContents = () => {
     });
     const offsetArr = contents.innerHTML.split(`.jpg" style="height: `);
     const offset = Number(offsetArr[offsetArr.length - 1].split("px")[0]);
-    const regex = `</div><div class="bracket"></div><img onclick="miniplayerLoad\\('${replaceID}', '00:00'\\)" class="thumbnail" src="https://i.ytimg.com/vi/${replaceID}/mqdefault.jpg"${
-      !matchesMobile.matches ? ` style="height: ${offset}px;"` : ``
-    }></div></div>$`;
+    const regex = `</div><div class="bracket"></div><img onclick="miniplayerLoad\\('${replaceID}', '00:00'\\)" class="thumbnail" src="https://i.ytimg.com/vi/${replaceID}/mqdefault.jpg"${!matchesMobile.matches ? ` style="height: ${offset}px;"` : ``
+      }></div></div>$`;
     contentsTemp += (page === 0 ? `<div id="match-count"></div>` : "") + videoDiv;
     if (results.length === 0 || enteredCount < loadMax) {
-      contentsTemp += `<div id="no-results">No${
-        totalLoadedContents !== 0 ? ` more` : ``
-      } results found.</div>`;
+      contentsTemp += `<div id="no-results">No${totalLoadedContents !== 0 ? ` more` : ``
+        } results found.</div>`;
       reachedEndOfSearch = true;
     }
     contents.innerHTML =
@@ -304,9 +299,8 @@ const loadContents = () => {
           ? contents.innerHTML.replace(new RegExp(regex), "")
           : contents.innerHTML
         : "") + contentsTemp;
-    document.getElementById("match-count").textContent = `Showing ${totalLoadedContents} result${
-      totalLoadedContents === 1 ? "" : "s"
-    }.`;
+    document.getElementById("match-count").textContent = `Showing ${totalLoadedContents} result${totalLoadedContents === 1 ? "" : "s"
+      }.`;
     document.querySelectorAll(".snippet").forEach((el) => {
       if (el.children[1].offsetHeight > 40) el.children[1].style.padding = "10px 0";
       el.style.height = el.children[1].offsetHeight + "px";
@@ -338,9 +332,8 @@ const loadSermons = () => {
   // Need to prevent further loading once we've reached the end.
   if ((currPage + 1) * PAGE_SIZE >= currLoadedSermons.length) {
     loadedAll = true;
-    sermonDiv += `<div id="no-results">No${
-      currLoadedSermons.length !== 0 ? ` more` : ``
-    } results found.</div>`;
+    sermonDiv += `<div id="no-results">No${currLoadedSermons.length !== 0 ? ` more` : ``
+      } results found.</div>`;
   }
 
   contents.innerHTML = sermonDiv;
@@ -1369,9 +1362,8 @@ const mobileDropdowns = (x) => {
       `Upload Date: <span class="value" id="upload">Any Time</span>`;
     document.getElementById("books-full").innerHTML =
       `Book(s): <span class="value" id="books">All</span>`;
-    document.getElementById("sort-full").innerHTML = `Sort by: <span class="value" id="sort">${
-      sortBy.charAt(0).toUpperCase() + sortBy.slice(1)
-    }</span>`;
+    document.getElementById("sort-full").innerHTML = `Sort by: <span class="value" id="sort">${sortBy.charAt(0).toUpperCase() + sortBy.slice(1)
+      }</span>`;
     displayBooks();
     displayUpload();
   }
