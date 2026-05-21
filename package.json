@@ -12,13 +12,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.28.0",
+    "hls.js": "^1.6.16",
     "oxfmt": "^0.50.0"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "^11.1.1",
-      "onFail": "download"
-    }
   }
 }

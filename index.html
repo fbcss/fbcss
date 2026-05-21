@@ -187,35 +187,88 @@
       </div>
     </div>
 
-    <div id="miniplayer" style="display: none">
+    <div id="miniplayer">
       <div id="miniplayer-blind">
         <div id="drag-overlay">
           <div id="drag-text">
             <img src="./assets/grip.svg" />
           </div>
         </div>
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          id="miniplayer-close"
-          onclick="closeMiniplayer()"
-        >
-          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-          <g id="SVGRepo_iconCarrier">
+        <div id="miniplayer-blind-actions">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            id="miniplayer-close"
+            onclick="closeMiniplayer()"
+            title="Close"
+          >
             <path
               fill-rule="evenodd"
               clip-rule="evenodd"
               d="M10.9393 12L6.9696 15.9697L8.03026 17.0304L12 13.0607L15.9697 17.0304L17.0304 15.9697L13.0607 12L17.0303 8.03039L15.9696 6.96973L12 10.9393L8.03038 6.96973L6.96972 8.03039L10.9393 12Z"
               fill="#080341"
             ></path>
-          </g>
-        </svg>
+          </svg>
+        </div>
+      </div>
+      <video id="video" playsinline src=""></video>
+      <div id="video-overlay">
+        <button id="video-close" onclick="closeMiniplayer()" title="Close Video">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <div id="video-play">
+          <svg id="play" width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+            <polygon
+              points="20,14 46,30 20,46"
+              fill="white"
+              stroke="white"
+              stroke-width="20"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+          </svg>
+          <svg id="pause" width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="13" width="15" height="34" fill="white" rx="8"/>
+            <rect x="35" y="13" width="15" height="34" fill="white" rx="8"/>
+          </svg>
+        </div>
+        <div id="video-resizer"></div>
+        <div id="video-controls">
+          <div id="progress-bar-container">
+            <div id="progress-bar-bg">
+              <div id="progress-bar-fill"></div>
+              <div id="progress-bar-thumb"></div>
+            </div>
+          </div>
+          <div id="controls-row">
+            <span id="video-time-display">0:00 / 0:00</span>
+            <div id="controls-middle">
+              <button id="back-btn" class="ctrl-btn" title="Rewind 5s">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 4c-4.42 0-8 3.58-8 8h-3l4 4 4-4h-3c0-3.31 2.69-6 6-6s6 2.69 6 6-2.69 6-6 6c-1.66 0-3.16-.68-4.25-1.77l-1.42 1.42C8.27 19.13 10.27 20 12.5 20c4.42 0 8-3.58 8-8s-3.58-8-8-8zm-1.25 6v2.5h-1.5V10h1.5zm3 0v5h-1.5v-5h1.5z"/></svg>
+              </button>
+              <button id="forward-btn" class="ctrl-btn" title="Fast Forward 5s">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.5 4c4.42 0 8 3.58 8 8h3l-4 4-4-4h3c0-3.31-2.69-6-6-6s-6 2.69-6 6 2.69 6 6 6c1.66 0 3.16-.68 4.25-1.77l1.42 1.42C15.73 19.13 13.73 20 11.5 20c-4.42 0-8-3.58-8-8s3.58-8 8-8zm1.25 6v2.5h1.5V10h-1.5zm-3 0v5h1.5v-5h-1.5z"/></svg>
+              </button>
+            </div>
+            <div id="controls-right">
+              <button id="transcript-btn" class="ctrl-btn" onclick="toggleTranscriptPanel(event)" title="Transcript" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+                  <path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h10v2H4v-2z" fill="currentColor"/>
+                </svg>
+              </button>
+              <button class="ctrl-btn" onclick="maximizeMiniplayer()" title="Maximize">
+                <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 3h7v2H5v5H3V3zm11 0h7v7h-2V5h-5V3zM3 14h2v5h5v2H3v-7zm16 5h-5v2h7v-7h-2v5z" fill="currentColor"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <iframe
-        src="https://www.youtube.com/watch?v=RuFdirOTpS4"
-        id="video"
+        id="yt-video"
+        display="none"
         title="FBC Sermon Viewport"
         frameborder="0"
         allow="
@@ -229,10 +282,12 @@
         "
         referrerpolicy="strict-origin-when-cross-origin"
         allowfullscreen
+        src=""
       ></iframe>
       <div id="miniplayer-resize">
         <img src="./assets/resize.svg" width="40px" height="40px" />
       </div>
+      <div id="transcript-panel" class="hidden"></div>
     </div>
     <div id="skeleton"><div>Click on a timestamp to play a sermon</div></div>
 

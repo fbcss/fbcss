@@ -582,17 +582,61 @@ body {
   min-width: 155px;
   min-height: calc(155px / 16 * 9 + 34px);
   width: calc(100vw - 926px - 206px - 60px);
-  height: calc((100vw - 926px - 206px - 60px) / 16 * 9 + 34px);
+  --miniplayer-height: calc((100vw - 926px - 206px - 60px) / 16 * 9);
   z-index: 900;
+}
+
+#skeleton {
+  height: var(--miniplayer-height);
+}
+
+#miniplayer {
+  display: none;
+
+  &:has(video:not([src=""])) {
+    height: var(--miniplayer-height);
+  }
+
+  &:has(video[src=""]) {
+    height: calc(var(--miniplayer-height) + 34px);
+  }
+}
+
+#miniplayer:not(:has(#transcript-panel.hidden)) {
+  background: var(--bg-color, white);
+  border-radius: 8px 8px 0 0;
+  /* Beautiful squircle support for new browsers */
+  @supports (corner-shape: squircle) {
+    border-radius: 15px 15px 0 0;
+    corner-shape: squircle;
+  }
+}
+
+#miniplayer:has(iframe:not([src=""]), video:not([src=""])) {
+  display: block;
+
+  & ~ #skeleton {
+    display: none;
+  }
 }
 
 #miniplayer-blind {
   width: 100%;
   height: 34px;
   display: grid;
-  grid-template-columns: calc(100% - 34px) 34px;
+  grid-template-columns: 1fr auto;
   background-color: rgba(217, 217, 217, 0.5);
   color: white;
+}
+
+#miniplayer-blind-actions {
+  display: flex;
+  align-items: center;
+  height: 34px;
+}
+
+#miniplayer:has(video:not([src=""])) #miniplayer-blind {
+  display: none;
 }
 
 #miniplayer-resize {
@@ -601,7 +645,7 @@ body {
   position: absolute;
   bottom: 6px;
   right: 6px;
-  z-index: 900000000000000000000000000000000000000;
+  z-index: 900000000000000000000000000000000000000; /* i hate myself */
   cursor: nwse-resize;
 }
 
@@ -638,13 +682,302 @@ body {
 #miniplayer iframe {
   width: 100%;
   height: calc(100% - 34px);
+  display: none;
+}
+
+#miniplayer video[src=""] ~ iframe {
+  display: block;
+}
+
+#miniplayer video {
+  width: 100%;
+  border-radius: 8px;
+  vertical-align: bottom;
+
+  /* Beautiful squircle support for new browsers */
+  @supports (corner-shape: squircle) {
+    border-radius: 15px;
+    corner-shape: squircle;
+  }
+
+  &[src=""] {
+    display: none;
+
+    & ~ #video-overlay {
+      display: none;
+    }
+  }
+
+  &:not([src=""]) {
+    & ~ #miniplayer-resize {
+      display: none;
+    }
+  }
+}
+
+#video-overlay {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.3);
+
+  border-radius: 8px;
+  /* Beautiful squircle support for new browsers */
+  @supports (corner-shape: squircle) {
+    border-radius: 15px;
+    corner-shape: squircle;
+  }
+
+  opacity: 0;
+  transition: 300ms ease opacity;
+  &:hover {
+    opacity: 1;
+  }
+
+  #video-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    background: var(--accent-color);
+    border-radius: 8px;
+    z-index: 3;
+    cursor: default;
+    border: none;
+    color: white;
+    padding: 3px;
+  }
+
+  #video-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    width: 100px;
+    height: 100px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    z-index: 3;
+    cursor: default;
+
+    & svg {
+      margin-top: 50%;
+      margin-left: 50%;
+      translate: -50% -50%;
+    }
+
+    #pause {
+      display: none;
+    }
+
+    &.paused {
+      #play {
+        display: none;
+      }
+      #pause {
+        display: block;
+      }
+    }
+  }
+
+  #video-resizer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    z-index: 10;
+    cursor: se-resize;
+    background: transparent;
+  }
+}
+
+#video-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 6px 8px 8px;
+  box-sizing: border-box;
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  border-radius: 0 0 8px 8px;
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+
+  @supports (corner-shape: squircle) {
+    border-radius: 0 0 15px 15px;
+  }
+}
+
+#video-overlay:hover #video-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Progress bar */
+#progress-bar-container {
+  width: 100%;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+#progress-bar-bg {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.35);
+  border-radius: 2px;
+  transition: height 120ms ease;
+}
+
+#progress-bar-container:hover #progress-bar-bg {
+  height: 6px;
+}
+
+#progress-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0%;
+  background: var(--accent-color);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+#progress-bar-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: transform 120ms ease;
+  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+}
+
+#progress-bar-container:hover #progress-bar-thumb {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Bottom row */
+#controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+#video-time-display {
+  color: white;
+  font-size: 11px;
+  font-family: "Poppins";
+  user-select: none;
+  white-space: nowrap;
+}
+
+#controls-middle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#controls-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ctrl-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 100ms ease;
+  line-height: 1;
+}
+
+.ctrl-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.ctrl-btn.active {
+  color: var(--accent-color);
+  background: rgba(255,255,255,0.15);
+}
+
+/* Transcript panel */
+#transcript-panel {
+  background: var(--bg-color, white);
+  border-top: 1px solid rgba(0,0,0,0.1);
+  width: 100%;
+  max-height: 140px;
+  overflow-y: auto;
+  font-size: 12px;
+  font-family: "Poppins";
+  box-sizing: border-box;
+
+  border-radius: 0 0 8px 8px;
+  /* Beautiful squircle support for new browsers */
+  @supports (corner-shape: squircle) {
+    border-radius: 0 0 15px 15px;
+    corner-shape: squircle;
+  }
+
+  &.hidden {
+    display: none;
+  }
+}
+
+#transcript-panel .tp-line {
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 80ms ease;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: var(--text-color, black);
+}
+
+#transcript-panel .tp-line:hover {
+  background: var(--container-hover-bg-color, #d9d9d9);
+}
+
+#transcript-panel .tp-line.tp-active {
+  background: var(--accent-color);
+  color: white;
+}
+
+#transcript-panel .tp-ts {
+  color: var(--accent-color);
+  flex-shrink: 0;
+  font-size: 11px;
+  margin-top: 1px;
+}
+
+#transcript-panel .tp-line.tp-active .tp-ts {
+  color: white;
 }
 
 #resize-handle {
   cursor: nwse-resize;
   text-align: right;
   border-radius: 50%;
-  z-index: 200000000000;
+  z-index: 200000000000; /* i hate myself */
 }
 
 #scroll-to-top {
@@ -797,7 +1130,7 @@ body {
   #miniplayer,
   #skeleton {
     width: calc(100vw - 926px - 70px);
-    height: calc((100vw - 926px - 70px) / 16 * 9 + 34px);
+    --miniplayer-height: calc((100vw - 926px - 70px) / 16 * 9);
   }
 
   .logo {
@@ -1017,7 +1350,7 @@ body {
   #miniplayer,
   #skeleton {
     width: calc(min(calc(35vh / 9 * 16), 90vw));
-    height: calc(min(35vh, calc(90vw / 16 * 9)) + 34px);
+    --miniplayer-height: min(35vh, calc(90vw / 16 * 9));
     top: 100%;
     left: 50%;
     transform: translate(-50%, -120%);
@@ -1080,33 +1413,6 @@ body {
     height: 100vw;
     width: 100vw;
   }
-}
-
-#transcript-sync {
-  background-color: lightgray;
-  color: black;
-  width: 100%;
-  height: 20vh;
-  position: absolute;
-  bottom: 0;
-  overflow: scroll;
-}
-
-#transcript-sync #selected-line {
-  background-color: var(--accent-color);
-  color: white;
-}
-
-#transcript-sync .sync-line {
-  width: 100%;
-  text-align: center;
-  cursor: pointer;
-  transition: all 100ms ease;
-  position: relative;
-}
-
-#transcript-sync .sync-line:hover {
-  background-color: rgb(160, 160, 160);
 }
 
 .tooltip {

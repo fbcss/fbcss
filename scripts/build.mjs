@@ -2,7 +2,11 @@ import * as fs from "node:fs";
 import * as esbuild from "esbuild";
 
 const data = fs.readFileSync("data/transcripts.json", "utf8");
-fs.writeFileSync("transcripts.js", `export const transcripts = ${data};`);
+const idMap = fs.readFileSync("data/id_map.json", "utf8");
+fs.writeFileSync(
+  "transcripts.js",
+  `export const transcripts = ${data};export const idMap = ${idMap};`,
+);
 
 await Promise.all([
   esbuild.build({

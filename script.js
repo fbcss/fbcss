@@ -1,6 +1,7 @@
 // Patent pending
 
-import { transcripts } from "./transcripts.js";
+import Hls from "hls.js";
+import { transcripts, idMap } from "./transcripts.js";
 
 const searchBar = document.getElementById("searchbar");
 const contents = document.getElementById("contents");
@@ -15,14 +16,9 @@ const sortImg = document.getElementById("sort-img");
 const uploadContent = document.getElementById("upload-content");
 const booksContent = document.getElementById("books-content");
 const sortContent = document.getElementById("sort-content");
+const vidOverlay = document.getElementById("video-overlay");
 
 searchBar.value = "";
-
-var tag = document.createElement("script");
-
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName("script")[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 uploadContent.style.height = "150px";
 sortContent.style.height = "160px";
@@ -717,7 +713,7 @@ const displayUpload = () => {
         : "Any Time";
 };
 
-const embed = miniplayer;
+const embed = document.getElementById("miniplayer");
 const resizeHandle = document.getElementById("miniplayer-resize");
 
 let isDragging = false;
@@ -725,30 +721,22 @@ let isResizing = false;
 let onMiniplayer = false;
 let startX, startY, initialX, initialY, initialWidth, initialHeight;
 
-var player;
-let playerIsReady = false;
-
-const playerReady = () => {
-  playerIsReady = true;
-};
-
-function onYouTubeIframeAPIReady() {
-  playerIsReady = false;
-  player = new YT.Player(document.getElementById("video"), {
-    events: { onReady: playerReady },
-  });
+const ensureTarget = (e) => {
+  if (
+    e.target !== vidOverlay &&
+    e.target !== document.getElementById("drag-overlay")
+  ) return true;
 }
 
 const handleDragStart = (e) => {
-  if (e.target === document.getElementById("drag-overlay")) {
-    onMiniplayer = true;
-    startX = e.clientX || e.touches[0].clientX;
-    startY = e.clientY || e.touches[0].clientY;
-    initialX = embed.offsetLeft;
-    initialY = embed.offsetTop;
-    document.querySelector("#drag-overlay").style.cursor = "grabbing";
-    e.preventDefault();
-  }
+  if (ensureTarget(e)) return;
+  onMiniplayer = true;
+  startX = e.clientX || e.touches[0].clientX;
+  startY = e.clientY || e.touches[0].clientY;
+  initialX = embed.offsetLeft;
+  initialY = embed.offsetTop;
+  e.target.style.cursor = "grabbing";
+  e.preventDefault();
 };
 
 const handleDragMove = (e) => {
@@ -762,43 +750,84 @@ const handleDragMove = (e) => {
   }
 };
 
-const handleDragEnd = () => {
+const handleDragEnd = (e) => {
+  if (ensureTarget(e)) return;
   onMiniplayer = false;
   if (isDragging) isDragging = false;
-  document.querySelector("#drag-overlay").style.cursor = "grab";
+  e.target.style.cursor = "grab";
 };
+
+const videoElement = document.getElementById("video");
 
 const handleResizeStart = (e) => {
   isResizing = true;
-  startX = e.clientX || e.touches[0].clientX;
-  startY = e.clientY || e.touches[0].clientY;
+  startX = e.clientX || (e.touches && e.touches[0].clientX);
+  startY = e.clientY || (e.touches && e.touches[0].clientY);
   initialWidth = embed.offsetWidth;
   initialHeight = embed.offsetHeight;
+  
   e.stopPropagation();
-  e.preventDefault();
+  if (e.cancelable) e.preventDefault();
 };
 
 const handleResizeMove = (e) => {
-  if (isResizing) {
-    const dx = (e.clientX || e.touches[0].clientX) - startX;
-    const dy = (e.clientY || e.touches[0].clientY) - startY;
-    embed.style.width = `${Math.max(200, initialWidth + dx)}px`;
-    embed.style.height = `${Math.max(150, initialHeight + dy)}px`;
-    e.preventDefault();
+  if (!isResizing || !videoElement) return;
+
+  const currentX = e.clientX || (e.touches && e.touches[0].clientX);
+  const currentY = e.clientY || (e.touches && e.touches[0].clientY);
+
+  const dx = currentX - startX;
+  const dy = currentY - startY;
+
+  let targetWidth = Math.max(200, initialWidth + dx);
+  let targetHeight = Math.max(150, initialHeight + dy);
+
+  const videoRatio = videoElement.videoWidth && videoElement.videoHeight
+    ? videoElement.videoWidth / videoElement.videoHeight
+    : 16 / 9;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    targetHeight = targetWidth / videoRatio;
+    
+    if (targetHeight < 150) {
+      targetHeight = 150;
+      targetWidth = targetHeight * videoRatio;
+    }
+  } else {
+    targetWidth = targetHeight * videoRatio;
+    
+    if (targetWidth < 200) {
+      targetWidth = 200;
+      targetHeight = targetWidth / videoRatio;
+    }
   }
+
+  embed.style.width = `${targetWidth}px`;
+  embed.style.height = `${targetHeight}px`;
+
+  if (e.cancelable) e.preventDefault();
 };
 
-const handleResizeEnd = () => (isResizing = false);
+const handleResizeEnd = () => {
+  isResizing = false;
+};
 
 // Event listeners for dragging
+vidOverlay.addEventListener("mousedown", handleDragStart);
+vidOverlay.addEventListener("touchstart", handleDragStart);
 document.querySelector("#drag-overlay").addEventListener("mousedown", handleDragStart);
 document.querySelector("#drag-overlay").addEventListener("touchstart", handleDragStart);
 document.addEventListener("mousemove", handleDragMove);
 document.addEventListener("touchmove", handleDragMove);
+vidOverlay.addEventListener("mouseup", handleDragEnd);
+vidOverlay.addEventListener("touchend", handleDragEnd);
 document.querySelector("#drag-overlay").addEventListener("mouseup", handleDragEnd);
 document.querySelector("#drag-overlay").addEventListener("touchend", handleDragEnd);
 
 // Event listeners for resizing
+const videoResizer = document.getElementById("video-resizer");
+videoResizer.addEventListener("mousedown", handleResizeStart);
+videoResizer.addEventListener("touchstart", handleResizeStart);
 resizeHandle.addEventListener("mousedown", handleResizeStart);
 resizeHandle.addEventListener("touchstart", handleResizeStart);
 document.addEventListener("mousemove", handleResizeMove);
@@ -806,10 +835,30 @@ document.addEventListener("touchmove", handleResizeMove);
 document.addEventListener("mouseup", handleResizeEnd);
 document.addEventListener("touchend", handleResizeEnd);
 
-const miniplayerLoad = async (id, timestamp) => {
-  const miniplayer = document.getElementById("miniplayer");
+const videoPlay = document.getElementById("video-play");
+videoPlay.addEventListener("click", (e) => {
+  e.stopPropagation();
   const video = document.getElementById("video");
+  if (video.paused) {
+    video.play();
+    videoPlay.className = "";
+  } else {
+    video.pause();
+    videoPlay.className = "paused";
+  }
+});
 
+const customVideo = document.getElementById("video");
+const backBtn = document.getElementById("back-btn");
+backBtn.addEventListener("click", () => {
+  customVideo.currentTime = Math.max(0, customVideo.currentTime - 5);
+});
+const forwardBtn = document.getElementById("forward-btn");
+forwardBtn.addEventListener("click", () => {
+  customVideo.currentTime = Math.min(customVideo.duration || 0, customVideo.currentTime + 5);
+});
+
+const miniplayerLoad = async (id, timestamp) => {
   const parts = timestamp.split(":").map(Number);
   let hours = 0,
     minutes = 0,
@@ -822,15 +871,228 @@ const miniplayerLoad = async (id, timestamp) => {
 
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
 
-  miniplayer.style.display = "block";
-  document.getElementById("skeleton").style.display = "none";
-  video.src = `https://www.youtube.com/embed/${id}?autoplay=1&start=${totalSeconds}&enablejsapi=1`;
+  const video = document.getElementById("video");
+
+  // Load transcript data for this sermon
+  try {
+    await transcripts;
+    const allSermons = Object.values(transcripts["books"] || {}).flat()
+      .concat(Object.values(transcripts["guests"] || {}).flat())
+      .concat(transcripts["specials"] || [])
+      .concat(transcripts["other"] || []);
+    const sermon = allSermons.find((s) => s.id === id);
+    if (sermon && sermon.transcript && sermon.transcript.length) {
+      _transcriptData = sermon.transcript;
+      const tBtn = _transcriptBtn();
+      if (tBtn) tBtn.style.display = "";
+      _buildTranscriptPanel(_transcriptData);
+    } else {
+      _transcriptData = null;
+      const tBtn = _transcriptBtn();
+      if (tBtn) tBtn.style.display = "none";
+      document.getElementById("transcript-panel").className = "hidden";
+      document.getElementById("transcript-panel").innerHTML = "";
+    }
+  } catch (_) {
+    _transcriptData = null;
+  }
+
+  if (Object.hasOwn(idMap, id) && Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(`https://letschurch-media.b-cdn.net/${idMap[id]}/master.m3u8`);
+    hls.attachMedia(video);
+    video.currentTime = totalSeconds;
+    video.play();
+    return;
+  }
+
+  video.src = "";
+  document.getElementById("yt-video").src =
+    `https://www.youtube.com/embed/${id}?autoplay=1&start=${totalSeconds}`;
 };
 
 const closeMiniplayer = () => {
-  document.getElementById("miniplayer").style.display = "none";
-  document.getElementById("skeleton").style.display = "block";
   document.getElementById("video").src = "";
+  document.getElementById("yt-video").src = "";
+  // Reset transcript state
+  document.getElementById("transcript-panel").className = "hidden";
+  document.getElementById("transcript-panel").innerHTML = "";
+  _transcriptData = null;
+  _transcriptBtn()?.classList.remove("active");
+};
+
+const _transcriptBtn = () => document.getElementById("transcript-btn");
+
+// ── Maximize: enter fullscreen on the miniplayer ────────────────
+const maximizeMiniplayer = () => {
+  const player = document.getElementById("miniplayer");
+  if (document.fullscreenElement) {
+    document.exitFullscreen?.();
+  } else {
+    player.requestFullscreen?.() ?? player.webkitRequestFullscreen?.();
+  }
+};
+
+// ── Progress bar ────────────────────────────────────────────────
+let _progressDragging = false;
+
+const _formatTime = (s) => {
+  s = Math.floor(s || 0);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
+    : `${m}:${String(sec).padStart(2, "0")}`;
+};
+
+const _updateProgressUI = (video) => {
+  const fill = document.getElementById("progress-bar-fill");
+  const thumb = document.getElementById("progress-bar-thumb");
+  const timeDisplay = document.getElementById("video-time-display");
+  if (!fill || !video.duration) return;
+  const pct = (video.currentTime / video.duration) * 100;
+  fill.style.width = `${pct}%`;
+  thumb.style.left = `${pct}%`;
+  timeDisplay.textContent = `${_formatTime(video.currentTime)} / ${_formatTime(video.duration)}`;
+  _syncTranscriptHighlight(video.currentTime);
+};
+
+const _seekFromEvent = (e, video) => {
+  const bar = document.getElementById("progress-bar-bg");
+  const rect = bar.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+  video.currentTime = ratio * video.duration;
+  _updateProgressUI(video);
+};
+
+(() => {
+  const video = document.getElementById("video");
+  const pbc = document.getElementById("progress-bar-container");
+
+  video.addEventListener("timeupdate", () => _updateProgressUI(video));
+  video.addEventListener("loadedmetadata", () => _updateProgressUI(video));
+
+  pbc.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+    _progressDragging = true;
+    _seekFromEvent(e, video);
+  });
+  pbc.addEventListener("touchstart", (e) => {
+    e.stopPropagation();
+    _progressDragging = true;
+    _seekFromEvent(e, video);
+  }, { passive: true });
+  document.addEventListener("mousemove", (e) => {
+    if (_progressDragging) _seekFromEvent(e, video);
+  });
+  document.addEventListener("touchmove", (e) => {
+    if (_progressDragging) _seekFromEvent(e, video);
+  }, { passive: true });
+  document.addEventListener("mouseup", () => { _progressDragging = false; });
+  document.addEventListener("touchend", () => { _progressDragging = false; });
+})();
+
+let initialPinchDistance = null;
+
+vidOverlay.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 2) {
+    // Calculate initial straight-line distance between two contact touch coordinates
+    initialPinchDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    initialWidth = videoWrapper.offsetWidth;
+    initialHeight = videoWrapper.offsetHeight;
+  }
+}, { passive: true });
+
+vidOverlay.addEventListener("touchmove", (e) => {
+  if (e.touches.length === 2 && initialPinchDistance !== null) {
+    const currentDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    
+    // Find scale coefficient factor differential
+    const scaleFactor = currentDistance / initialPinchDistance;
+    const targetWidth = initialWidth * scaleFactor;
+    const targetHeight = initialHeight * scaleFactor;
+
+    if (targetWidth > 200 && targetWidth < window.innerWidth) {
+      videoWrapper.style.width = `${targetWidth}px`;
+    }
+    if (targetHeight > 120 && targetHeight < window.innerHeight) {
+      videoWrapper.style.height = `${targetHeight}px`;
+    }
+  }
+}, { passive: true });
+
+vidOverlay.addEventListener("touchend", (e) => {
+  if (e.touches.length < 2) {
+    initialPinchDistance = null;
+  }
+});
+
+// ── Transcript panel ────────────────────────────────────────────
+let _transcriptData = null; // set by miniplayerLoad
+
+const _syncTranscriptHighlight = (currentTime) => {
+  if (!_transcriptData) return;
+  const panel = document.getElementById("transcript-panel");
+  if (panel.style.display === "none") return;
+  const lines = panel.querySelectorAll(".tp-line");
+  let activeIdx = -1;
+  _transcriptData.forEach(([ts], i) => {
+    const secs = _tsToSecs(ts);
+    if (secs <= currentTime) activeIdx = i;
+  });
+  lines.forEach((line, i) => {
+    if (i === activeIdx) {
+      if (!line.classList.contains("tp-active")) {
+        panel.querySelectorAll(".tp-active").forEach((el) => el.classList.remove("tp-active"));
+        line.classList.add("tp-active");
+        // Auto-scroll only if user hasn't manually scrolled
+        line.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  });
+};
+
+const _tsToSecs = (ts) => {
+  const parts = ts.split(":").map(Number);
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return parts[0] * 60 + (parts[1] || 0);
+};
+
+const _buildTranscriptPanel = (transcriptArr) => {
+  const panel = document.getElementById("transcript-panel");
+  panel.innerHTML = "";
+  if (!transcriptArr || !transcriptArr.length) {
+    panel.innerHTML = `<div style="padding:10px;color:gray;font-size:12px">No transcript available.</div>`;
+    return;
+  }
+  transcriptArr.forEach(([ts, text]) => {
+    const line = document.createElement("div");
+    line.className = "tp-line";
+    line.innerHTML = `<span class="tp-ts">${ts}</span><span class="tp-text">${text}</span>`;
+    line.addEventListener("click", () => {
+      const video = document.getElementById("video");
+      video.currentTime = _tsToSecs(ts);
+      if (video.paused) video.play();
+    });
+    panel.appendChild(line);
+  });
+};
+
+const toggleTranscriptPanel = (e) => {
+  e.stopPropagation();
+  const panel = document.getElementById("transcript-panel");
+  const btn = _transcriptBtn();
+  const visible = panel.className !== "hidden";
+  panel.className = visible ? "hidden" : "";
+  btn.classList.toggle("active", !visible);
 };
 
 let arrayOfCombinations = [];
