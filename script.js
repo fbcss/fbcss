@@ -1,7 +1,9 @@
 // Patent pending
 
 import Hls from "hls.js";
-import { transcripts, idMap } from "./transcripts.js";
+import moment from "moment";
+import idMap from "id_map";
+import transcripts from "transcripts";
 
 const searchBar = document.getElementById("searchbar");
 const contents = document.getElementById("contents");
@@ -858,7 +860,7 @@ forwardBtn.addEventListener("click", () => {
   customVideo.currentTime = Math.min(customVideo.duration || 0, customVideo.currentTime + 5);
 });
 
-const miniplayerLoad = async (id, timestamp) => {
+window.miniplayerLoad = async (id, timestamp) => {
   const parts = timestamp.split(":").map(Number);
   let hours = 0,
     minutes = 0,
@@ -911,7 +913,9 @@ const miniplayerLoad = async (id, timestamp) => {
     `https://www.youtube.com/embed/${id}?autoplay=1&start=${totalSeconds}`;
 };
 
-const closeMiniplayer = () => {
+window.closeMiniplayer = () => {
+  document.getElementById("miniplayer").style.display = "none";
+  document.getElementById("skeleton").style.display = "block";
   document.getElementById("video").src = "";
   document.getElementById("yt-video").src = "";
   // Reset transcript state
@@ -923,8 +927,7 @@ const closeMiniplayer = () => {
 
 const _transcriptBtn = () => document.getElementById("transcript-btn");
 
-// ── Maximize: enter fullscreen on the miniplayer ────────────────
-const maximizeMiniplayer = () => {
+window.maximizeMiniplayer = () => {
   const player = document.getElementById("miniplayer");
   if (document.fullscreenElement) {
     document.exitFullscreen?.();
@@ -933,7 +936,6 @@ const maximizeMiniplayer = () => {
   }
 };
 
-// ── Progress bar ────────────────────────────────────────────────
 let _progressDragging = false;
 
 const _formatTime = (s) => {
@@ -1086,7 +1088,7 @@ const _buildTranscriptPanel = (transcriptArr) => {
   });
 };
 
-const toggleTranscriptPanel = (e) => {
+window.toggleTranscriptPanel = (e) => {
   e.stopPropagation();
   const panel = document.getElementById("transcript-panel");
   const btn = _transcriptBtn();

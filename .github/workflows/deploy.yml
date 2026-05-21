@@ -12,27 +12,36 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: fbcss
+          repositories: fbcss.github.io
+
       - name: Checkout source repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: pnpm ci
+        run: bun ci
 
       - name: Build distribution
-        run: pnpm build
+        run: bun run build
 
       - name: Deploy to fbcss.github.io
         run: |
-          git config user.name "fbcss"
-          git config user.email "fbcss@fbcss.github.io"
+          git config user.name "fbcss-deploy[bot]"
+          git config user.email "fbcss-deploy[bot]@users.noreply.github.com"
           git config --unset-all http.https://github.com/.extraheader
           rm -rf .github/ data/ scripts/ node_modules/
-          rm .oxfmtrc.json .gitignore package.json pnpm-*.yaml script.js styles.css
+          rm .oxfmtrc.json .gitignore package.json bun.lock script.js
           git add .
           git commit -m "Deploy latest changes"
-          git push --force "https://user:${{ secrets.CLONE_TOKEN }}@github.com/fbcss/fbcss.github.io.git" main
+          git push --force "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/fbcss/fbcss.github.io.git" main
