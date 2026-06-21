@@ -4,6 +4,10 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Update transcripts data"]
+    types:
+      - completed
 
 permissions:
   contents: write
