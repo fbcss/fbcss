@@ -961,8 +961,24 @@ window.miniplayerLoad = async (id, timestamp) => {
     const hls = new Hls();
     hls.loadSource(`https://letschurch-media.b-cdn.net/${idMap[id]}/master.m3u8`);
     hls.attachMedia(video);
+
+    hls.on(Hls.Events.ERROR, (_event, data) => {
+      if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            hls.recoverMediaError();
+            break;
+          default:
+            hls.destroy();
+            video.src = "";
+            document.getElementById("yt-video").src =
+              `https://www.youtube.com/embed/${id}?autoplay=1&start=${totalSeconds}`;
+        }
+      }
+    });
+
     video.currentTime = totalSeconds;
-    video.play();
+    video.play().catch(e => console.log("Playback prevented:", e));
     return;
   }
 
