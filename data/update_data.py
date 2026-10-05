@@ -7,6 +7,7 @@ import subprocess
 import time
 import signal
 import sys
+from playwright.sync_api import sync_playwright
 
 def signal_handler(sig, frame):
     print("You ended the process.")
@@ -56,6 +57,35 @@ with open(transcripts_path, "r") as json_file:
     transcripts = json.load(json_file)
 
 url_prefix = "https://www.googleapis.com/youtube/v3/"
+
+def upload_video(video_id):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context()
+        with open("lc_cookies.txt", "r") as f:
+            content = f.read().strip()
+            context.add_cookies(content)
+        page = context.new_page()
+
+        uploads_page = "https://lets.church/dashboard/channels/e5fa77d3-af6a-4c03-ba71-1725005fbd97/uploads/"
+
+        page.goto(uploads_page)
+        page.get_by_role("button", name="Upload").click()
+        page.locator("input[type='file'][accept*='video/*']").set_input_files("input.mp4")
+        page.locator("input[type='radio'][value='UNLISTED']").click()
+        page.locator("input[type='radio'][value='DISABLED']").click()
+        page.locator("button", name="Save").click()
+
+        media_id = page.url.removeprefix(uploads_page)
+        id_map_path = os.path.join(script_path, "id_map.json")
+        with open(id_map_path, "r") as json_file:
+            id_map = json.load(json_file)
+        id_map[video_id] = media_id
+        with open(id_map_path, "w") as f:
+            json.dump(id_map, f)
+
+        browser.close()
+
 
 def iterate_api(url, params):
     results = []
@@ -217,31 +247,48 @@ for pl in playlists:
             if title.lower() == "pastor rob mcnutt":
                 video_container = transcripts["other"]
 
-            ydl_opts = {
-                "cookiefile": "cookies.txt",
-                "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
-                "format": (
-                    "bestaudio[acodec!=none][language=en]/"
-                    "bestaudio[acodec!=none][language=original]/"
-                    "bestaudio[acodec!=none]/best"
-                ),
-                "postprocessors": [{
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "192",
-                }],
-                "remote_components": ["ejs:github"],
-            }
+                if title != "live":
+                    ydl_opts = {
+                        "cookiefile": "cookies.txt",
+                        "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
+                        "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+                        "merge_output_format": "mp4",
+                        "postprocessors": [{
+                            "key": "FFmpegVideoConvertor",
+                            "preferedformat": "mp4",
+                        }],
+                        "remote_components": ["ejs:github"],
+                    }
+                else:
+                    ydl_opts = {
+                        "cookiefile": "cookies.txt",
+                        "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
+                        "format": (
+                            "bestaudio[acodec!=none][language=en]/"
+                            "bestaudio[acodec!=none][language=original]/"
+                            "bestaudio[acodec!=none]/best"
+                        ),
+                        "postprocessors": [{
+                            "key": "FFmpegExtractAudio",
+                            "preferredcodec": "mp3",
+                            "preferredquality": "192",
+                        }],
+                        "remote_components": ["ejs:github"],
+                    }
 
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.download([
                     "https://www.youtube.com/watch?v=" + video_data["id"]
                 ])
 
+            # If not live, upload to hosting service
+            if title != "live":
+                upload_video(video_data["id"])
+
             whisper_path = os.path.join(os.getcwd(), "whisper-cli")
             whisper_args = [
                 "-m", "ggml-tiny.en.bin",
-                "-f", "input.mp3",
+                "-f", "input.mp3" if title == "live" else "input.mp4",
                 "--output-json",
                 "-of", "output"
             ]

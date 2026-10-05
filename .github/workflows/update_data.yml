@@ -26,34 +26,60 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: "pip"
+
+      - name: Cache Whisper.cpp build and model
+        uses: actions/cache@v4
+        id: whisper-cache
+        with:
+          path: |
+            whisper-cli
+            ggml-tiny.en.bin
+          key: ${{ runner.os }}-whisper-${{ hashFiles("whisper.cpp/Makefile") }}
+
+      - name: Cache Playwright browesrs
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles("data/requirements.txt") }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Install necessary tools
         run: |
           sudo apt update && sudo apt install build-essential ffmpeg cmake
-          pip install yt-dlp requests
+          pip install -r data/requirements.txt
           curl -fsSL https://deno.land/install.sh | sh -s -- -y
           echo "$HOME/.deno/bin" >> $GITHUB_PATH
 
-      - name: Clone whisper.cpp
-        run: git clone https://github.com/ggerganov/whisper.cpp
-
       - name: Build whisper.cpp
+        if: steps.whisper-cache.outputs.cache-hit != "true"
         run: |
+          git clone https://github.com/ggerganov/whisper.cpp
           cd whisper.cpp
           make
+          ./models/download-ggml-model.sh tiny.en
+          mv build/bin/whisper-cli ../whisper-cli
+          mv models/ggml-tiny.en.bin ../ggml-tiny.en.bin
 
-      - name: Download tiny Whisper model
-        run: ./whisper.cpp/models/download-ggml-model.sh tiny.en
+      - name: Install Playwright browesrs
+        if: steps.playwright-cache.outputs.cache-hit != "true"
+        run: playwright install --with-deps chromium
 
-      - name: Move tools to the working directory
-        run: |
-          mv whisper.cpp/build/bin/whisper-cli whisper-cli
-          mv whisper.cpp/models/ggml-tiny.en.bin ggml-tiny.en.bin
+      - name: Ensure Playwright dependencies are installed
+        if: steps.playwright-cache.outputs.cache-hit == "true"
+        run: playwright install-deps chromium
 
       - name: Save cached cookies to a file
         env:
           COOKIES: ${{ secrets.COOKIES }}
         run: echo "$COOKIES" | base64 -d > cookies.txt
+
+      - name: Save cached lc_session to a file
+        env:
+          COOKIES: ${{ secrets.LC_SESSION }}
+        run: echo "$COOKIES" | base64 -d > lc_cookies.txt
 
       - name: Run python script
         env:
@@ -67,7 +93,7 @@ jobs:
         run: |
           git config --global user.name "fbcss-deploy[bot]"
           git config --global user.email "fbcss-deploy[bot]@users.noreply.github.com"
-          git add data/transcripts.json
+          git add data/transcripts.json data/id_map.json
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
