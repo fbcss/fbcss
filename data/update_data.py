@@ -155,7 +155,7 @@ def download_video(id, is_livestream=False):
             "keepvideo": True,
             "postprocessors": [{
                 "key": "FFmpegExtractAudio",
-                "preferredcodec": "m4a",
+                "preferredcodec": "wav",
             }],
         })
 
