@@ -285,7 +285,7 @@ for pl in playlists:
         video_id = video["resourceId"]["videoId"]
         video_data = {
             "name": video["title"],
-            "id": video_id
+            "id": video_id,
             "date": timestamp
         }
         video_container = data_container
