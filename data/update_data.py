@@ -95,7 +95,9 @@ def upload_video(video_id):
         "title": "FBC Sermon",
         "collection": "fbc_sermons"
     }
-    ia.upload(video_id, files=["input.mp4"], metadata=metadata)
+    access_key = os.environ["IA_ACCESS_KEY"]
+    secret_key = os.environ["IA_SECRET_KEY"]
+    ia.upload(video_id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
 
     id_map_path = os.path.join(script_path, "id_map.json")
     with open(id_map_path, "r") as json_file:
