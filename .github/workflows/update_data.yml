@@ -29,7 +29,12 @@ jobs:
           cache-dependency-glob: data/requirements.txt
 
       - name: Install Python dependencies
-        run: uv pip install --system -r data/requirements.txt
+        run: |
+          uv venv
+          uv pip install -r data/requirements.txt
+
+      - name: Add venv to PATH
+        run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Cache tools
         id: tools
