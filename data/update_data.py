@@ -291,7 +291,7 @@ for pl in playlists:
         videos = iterate_api(url, params)
 
     # Randomly upload sermon to host service
-    unhosted_videos = [video for video in videos if video["resourceId"]["videoId"] not in id_map]
+    unhosted_videos = [video for video in videos if video["resourceId"].get("videoId") not in id_map]
     random_unhosted_video = random.choice(unhosted_videos)
     random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
     random_video_title = random_unhosted_video["snippet"]["title"]
