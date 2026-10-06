@@ -160,6 +160,8 @@ def upload_video(id, title):
     
     for attempt in range(retries):
         try:
+            # Internet Archive compliant id format
+            ia_id = f"yt_{id}"
             ia.upload(id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
             
             id_map[id] = True
