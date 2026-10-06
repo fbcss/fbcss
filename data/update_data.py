@@ -10,6 +10,7 @@ import sys
 import internetarchive as ia
 import random
 import shutil
+import glob
 
 # Youtube API parameters
 API_PREFIX = "https://www.googleapis.com/youtube/v3/"
@@ -85,6 +86,10 @@ signal.signal(signal.SIGINT, handle_exit)
 signal.signal(signal.SIGTERM, handle_exit)
 
 # Utility functions
+def clean_workdir():
+    for f in glob.glob("input.*"):
+        os.remove(f)
+
 def iterate_api(url, params):
     results = []
     next_page = None
@@ -129,6 +134,9 @@ def contains_video_with_date(data, target_date):
 
 # Main video handling functions
 def download_video(id, is_livestream=False, extract_audio=True):
+    # Ensure there are no leftover input.* files that could interfere with incoming yt-dlp download
+    clean_workdir()
+    
     ydl_opts = {
         "cookiefile": "cookies.txt",
         "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
