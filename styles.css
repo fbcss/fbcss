@@ -596,6 +596,7 @@ body {
   display: none;
   background: transparent;
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 
   border-radius: 8px;
 
@@ -616,13 +617,6 @@ body {
 
 #miniplayer:not(:has(#transcript-panel.hidden)) {
   background: var(--bg-color, white);
-  border-radius: 8px 8px 0 0;
-
-  /* Beautiful squircle support for new browsers */
-  @supports (corner-shape: squircle) {
-    border-radius: 20px 20px 0 0;
-    corner-shape: squircle;
-  }
 }
 
 #miniplayer:has(iframe:not([src=""]), video:not([src=""])) {
@@ -698,6 +692,14 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
+
+  border-radius: 8px;
+
+  /* Beautiful squircle support for new browsers */
+  @supports (corner-shape: squircle) {
+    border-radius: 20px;
+    corner-shape: squircle;
+  }
 }
 
 #miniplayer:has(video[src=""]) #video-container {
@@ -721,12 +723,6 @@ body {
   vertical-align: bottom;
   object-fit: contain;
   min-height: 0;
-
-  /* Beautiful squircle support for new browsers */
-  @supports (corner-shape: squircle) {
-    border-radius: 20px;
-    corner-shape: squircle;
-  }
 
   &[src=""] {
     display: none;
