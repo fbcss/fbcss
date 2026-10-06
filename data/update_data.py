@@ -8,6 +8,7 @@ import time
 import signal
 import sys
 import internetarchive as ia
+import random
 
 def signal_handler(sig, frame):
     print("You ended the process.")
@@ -56,6 +57,10 @@ transcripts_path = os.path.join(script_path, "transcripts.json")
 with open(transcripts_path, "r") as json_file:
     transcripts = json.load(json_file)
 
+id_map_path = os.path.join(script_path, "id_map.json")
+with open(id_map_path, "r") as json_file:
+    id_map = json.load(json_file)
+
 url_prefix = "https://www.googleapis.com/youtube/v3/"
 
 def load_playwright_cookies(cookie_filepath="lc_cookies.txt"):
@@ -89,6 +94,40 @@ def load_playwright_cookies(cookie_filepath="lc_cookies.txt"):
                 
     return cookies
 
+def download_video(id):
+    ydl_opts = {
+        "cookiefile": "cookies.txt",
+        "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
+        "remote_components": ["ejs:github"],
+    }
+    if title != "live":
+        ydl_opts.update({
+            "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+            "merge_output_format": "mp4",
+            "postprocessors": [{
+                "key": "FFmpegVideoConvertor",
+                "preferedformat": "mp4",
+            }],
+         })
+    else:
+        ydl_opts.update({
+            "format": (
+                "bestaudio[acodec!=none][language=en]/"
+                "bestaudio[acodec!=none][language=original]/"
+                "bestaudio[acodec!=none]/best"
+            ),
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }],
+        })
+
+    with YoutubeDL(ydl_opts) as ydl:
+        ydl.download([
+            "https://www.youtube.com/watch?v=" + id
+        ])
+
 def upload_video(id, title):
     retries = 5
     delay = 15
@@ -103,10 +142,7 @@ def upload_video(id, title):
     for attempt in range(retries):
         try:
             ia.upload(id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
-
-            id_map_path = os.path.join(script_path, "id_map.json")
-            with open(id_map_path, "r") as json_file:
-                id_map = json.load(json_file)
+            
             id_map[id] = True
             with open(id_map_path, "w") as f:
                 json.dump(id_map, f, separators=(",", ":"))
@@ -254,6 +290,15 @@ for pl in playlists:
         }
         videos = iterate_api(url, params)
 
+    # Randomly upload sermon to host service
+    unhosted_videos = [video for video in videos if video["resourceId"]["videoId"] not in id_map]
+    random_unhosted_video = random.choice(unhosted_videos)
+    random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
+    random_video_title = random_unhosted_video["snippet"]["title"]
+    download_video(random_video_id)
+    upload_video(random_video_id, random_video_title)
+    print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
+
     print("\n" + str(len(videos)) + " videos found in '" + title + "'.")
     for i, video in enumerate(videos):
         print("\nProcessing video " + str(i + 1) + "/" + str(len(videos)) + ".")
@@ -282,38 +327,7 @@ for pl in playlists:
             if title.lower() == "pastor rob mcnutt":
                 video_container = transcripts["other"]
 
-            ydl_opts = {
-                "cookiefile": "cookies.txt",
-                "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
-                "remote_components": ["ejs:github"],
-            }
-            if title != "live":
-                ydl_opts.update({
-                    "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
-                    "merge_output_format": "mp4",
-                    "postprocessors": [{
-                        "key": "FFmpegVideoConvertor",
-                        "preferedformat": "mp4",
-                    }],
-                })
-            else:
-                ydl_opts.update({
-                    "format": (
-                        "bestaudio[acodec!=none][language=en]/"
-                        "bestaudio[acodec!=none][language=original]/"
-                        "bestaudio[acodec!=none]/best"
-                    ),
-                    "postprocessors": [{
-                        "key": "FFmpegExtractAudio",
-                        "preferredcodec": "mp3",
-                        "preferredquality": "192",
-                    }],
-                })
-
-            with YoutubeDL(ydl_opts) as ydl:
-                ydl.download([
-                    "https://www.youtube.com/watch?v=" + video_data["id"]
-                ])
+            download_video(video_data["id"])
 
             # If not live, upload to hosting service
             if title != "live":
