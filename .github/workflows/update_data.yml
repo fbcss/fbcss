@@ -71,7 +71,7 @@ jobs:
           ./models/download-ggml-model.sh tiny.en
           mv build/bin/whisper-cli ../whisper-cli
           mv models/ggml-tiny.en.bin ../ggml-tiny.en.bin
-          rm whisper.cpp/build/bin/test-*
+          rm build/bin/test-*
 
       - name: Save cached cookies to a file
         env:
