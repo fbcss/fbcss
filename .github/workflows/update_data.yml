@@ -30,7 +30,8 @@ jobs:
           cache-dependency-path: data/requirements.txt
 
       - name: Install Python dependencies
-        run: pip install -r data/requirements.txt
+        run: |
+          pip install --check-hash -r data/requirements.txt || pip install -r data/requirements.txt
 
       - name: Set up Deno
         uses: denoland/setup-deno@v2
