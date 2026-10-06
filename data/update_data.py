@@ -170,7 +170,7 @@ def upload_video(id, title):
     secret_key = os.environ["IA_SECRET_KEY"]
 
     # Internet Archive compliant id format
-    ia_id = f"yt_{id}"
+    ia_id = f"fbc_{id}"
     
     for attempt in range(retries):
         try:
