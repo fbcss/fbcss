@@ -29,7 +29,7 @@ jobs:
           cache: "pip"
 
       - name: Clone whisper.cpp
-        run: git clone https://github.com/ggerganov/whisper.cpp
+        run: git clone https://github.com/ggerganov/whisper.cpp --depth=1
 
       - name: Cache Whisper.cpp build and model
         uses: actions/cache@v4
@@ -43,7 +43,11 @@ jobs:
 
       - name: Install necessary tools
         run: |
-          sudo apt update && sudo apt install ffmpeg
+          curl -L https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz -o ffmpeg.tar.xz
+          tar -xf ffmpeg.tar.xz --strip-components=1 -C /tmp/
+          sudo mv /tmp/bin/ffmpeg /usr/local/bin/
+          rm ffmpeg.tar.xz
+          
           pip install -r data/requirements.txt
           curl -fsSL https://deno.land/install.sh | sh -s -- -y
           echo "$HOME/.deno/bin" >> $GITHUB_PATH
