@@ -7,7 +7,7 @@ import subprocess
 import time
 import signal
 import sys
-from playwright.sync_api import sync_playwright
+import internetarchive as ia
 
 def signal_handler(sig, frame):
     print("You ended the process.")
@@ -90,37 +90,19 @@ def load_playwright_cookies(cookie_filepath="lc_cookies.txt"):
     return cookies
 
 def upload_video(video_id):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context()
-        cookie_list = load_playwright_cookies("lc_cookies.txt")
-        context.add_cookies(cookie_list)
-        page = context.new_page()
+    metadata = {
+        "mediatype": "movies",
+        "title": "FBC Sermon",
+        "collection": "fbc_sermons"
+    }
+    ia.upload(video_id, files=["input.mp4"], metadata=metadata)
 
-        uploads_page = "https://lets.church/dashboard/channels/e5fa77d3-af6a-4c03-ba71-1725005fbd97/uploads/"
-
-        page.goto(uploads_page)
-        page.wait_for_load_state("networkidle")
-        upload_btn = page.get_by_role("button", name="Upload")
-        upload_btn.wait_for(state="visible", timeout=10000)
-        upload_btn.click()
-        page.locator("input[type='file'][accept*='video/*']").set_input_files("input.mp4")
-        page.get_by_text("Visible everyone with a link").click()
-        page.get_by_text("Users cannot comment on this upload.").click()
-        page.get_by_role("button", name="Save").click()
-
-        media_id = page.url.removeprefix(uploads_page)
-        id_map_path = os.path.join(script_path, "id_map.json")
-        with open(id_map_path, "r") as json_file:
-            id_map = json.load(json_file)
-        id_map[video_id] = media_id
-        with open(id_map_path, "w") as f:
-            json.dump(id_map, f, separators=(",", ":"))
-
-        page.get_by_text("Uploading file...").wait_for(state="detached", timeout=10000000)
-
-        browser.close()
-
+    id_map_path = os.path.join(script_path, "id_map.json")
+    with open(id_map_path, "r") as json_file:
+        id_map = json.load(json_file)
+    id_map[video_id] = True
+    with open(id_map_path, "w") as f:
+        json.dump(id_map, f, separators=(",", ":"))
 
 def iterate_api(url, params):
     results = []

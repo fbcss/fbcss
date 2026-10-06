@@ -1,6 +1,5 @@
 // Patent pending
 
-import Hls from "hls.js";
 import moment from "moment";
 import idMap from "id_map";
 import transcripts from "transcripts";
@@ -957,27 +956,8 @@ window.miniplayerLoad = async (id, timestamp) => {
     _transcriptData = null;
   }
 
-  if (Object.hasOwn(idMap, id) && Hls.isSupported()) {
-    const hls = new Hls();
-    const targetUrl = encodeURIComponent(`https://letschurch-media.b-cdn.net/${idMap[id]}/master.m3u8`);
-    hls.loadSource(`https://corsproxy.io/?${targetUrl}`);
-    hls.attachMedia(video);
-
-    hls.on(Hls.Events.ERROR, (_event, data) => {
-      if (data.fatal) {
-        switch (data.type) {
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            hls.recoverMediaError();
-            break;
-          default:
-            hls.destroy();
-            video.src = "";
-            document.getElementById("yt-video").src =
-              `https://www.youtube.com/embed/${id}?autoplay=1&start=${totalSeconds}`;
-        }
-      }
-    });
-
+  if (Object.hasOwn(idMap, id)) {
+    video.src = `https://archive.org/download/${id}/input.mp4`;
     video.currentTime = totalSeconds;
     video.play().catch(e => console.log("Playback prevented:", e));
     return;

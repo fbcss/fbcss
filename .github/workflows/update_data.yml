@@ -37,15 +37,6 @@ jobs:
             ggml-tiny.en.bin
           key: ${{ runner.os }}-whisper-${{ hashFiles("whisper.cpp/Makefile") }}
 
-      - name: Cache Playwright browesrs
-        uses: actions/cache@v4
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles("data/requirements.txt") }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
       - name: Install necessary tools
         run: |
           sudo apt update && sudo apt install build-essential ffmpeg cmake
@@ -63,27 +54,16 @@ jobs:
           mv build/bin/whisper-cli ../whisper-cli
           mv models/ggml-tiny.en.bin ../ggml-tiny.en.bin
 
-      - name: Install Playwright browesrs
-        if: steps.playwright-cache.outputs.cache-hit != "true"
-        run: playwright install --with-deps chromium
-
-      - name: Ensure Playwright dependencies are installed
-        if: steps.playwright-cache.outputs.cache-hit == "true"
-        run: playwright install-deps chromium
-
       - name: Save cached cookies to a file
         env:
           COOKIES: ${{ secrets.COOKIES }}
         run: echo "$COOKIES" | base64 -d > cookies.txt
 
-      - name: Save cached lc_session to a file
-        env:
-          COOKIES: ${{ secrets.LC_SESSION }}
-        run: echo "$COOKIES" | base64 -d > lc_cookies.txt
-
       - name: Run python script
         env:
           API_KEY: ${{ secrets.API_KEY }}
+          IA_ACCESS_KEY: ${{ secrets.IA_ACCESS_KEY }}
+          IA_SECRET_KEY: ${{ secrets.IA_SECRET_KEY }}
         run: python3 ./data/update_data.py
 
       - name: Push files to GitHub
