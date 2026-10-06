@@ -37,9 +37,22 @@ jobs:
         with:
           deno-version: lts
 
-      - name: Install ffmpeg
+      - name: Cache ffmpeg tarball
+        id: cache-ffmpeg
+        uses: actions/cache@v4
+        with:
+          path: ffmpeg.tar.xz
+          key: ffmpeg-master-latest
+
+      - name: Download ffmpeg tarball
+        if: steps.cache-ffmpeg.outputs.cache-hit != 'true'
         run: |
-          ffmpeg --version
+          curl -L https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz -o ffmpeg.tar.xz
+
+      - name: Extract ffmpeg tarball
+        run: |
+          tar -xf ffmpeg.tar.xz --strip-components=1 -C /tmp/
+          sudo mv /tmp/bin/ffmpeg /usr/local/bin/
 
       - name: Clone whisper.cpp
         run: git clone https://github.com/ggerganov/whisper.cpp --depth=1
