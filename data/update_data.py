@@ -177,7 +177,7 @@ def upload_video(id, title):
         try:
             # Internet Archive compliant id format
             ia_id = f"yt_{id}"
-            ia.upload(id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
+            ia.upload(ia_id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
             
             id_map[id] = True
             with open(id_map_path, "w") as f:
