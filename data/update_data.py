@@ -326,7 +326,7 @@ for pl in playlists:
             os.remove("input.mp4")
 
         # Transcribe audio track
-        audio_track = "input.mp3" if is_livestream else "input.m4a"
+        audio_track = "input.mp3" if is_livestream else "input.wav"
 
         whisper_path = os.path.join(os.getcwd(), "whisper-cli")
         thread_count = max(1, (os.cpu_count() or 2) - 1)
