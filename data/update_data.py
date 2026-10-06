@@ -90,6 +90,9 @@ def load_playwright_cookies(cookie_filepath="lc_cookies.txt"):
     return cookies
 
 def upload_video(video_id):
+    retries = 5
+    delay = 15
+
     metadata = {
         "mediatype": "movies",
         "title": "FBC Sermon",
@@ -97,14 +100,25 @@ def upload_video(video_id):
     }
     access_key = os.environ["IA_ACCESS_KEY"]
     secret_key = os.environ["IA_SECRET_KEY"]
-    ia.upload(video_id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
+    
+    for attempt in range(retries):
+        try:
+            ia.upload(video_id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
 
-    id_map_path = os.path.join(script_path, "id_map.json")
-    with open(id_map_path, "r") as json_file:
-        id_map = json.load(json_file)
-    id_map[video_id] = True
-    with open(id_map_path, "w") as f:
-        json.dump(id_map, f, separators=(",", ":"))
+            id_map_path = os.path.join(script_path, "id_map.json")
+            with open(id_map_path, "r") as json_file:
+                id_map = json.load(json_file)
+            id_map[video_id] = True
+            with open(id_map_path, "w") as f:
+                json.dump(id_map, f, separators=(",", ":"))
+        except requests.exceptions.HTTPError as e:
+            if "503" in str(e) or "Slow Down" in str(e):
+                print(f"Rate limited by IA (Attempt {attempt + 1}/{retries}). Waiting {delay}s...")
+                time.sleep(delay)
+                delay *= 2
+            else:
+                raise e
+    raise Exception(f"Failed to upload {identifier} after {retries} retries due to rate limiting.")
 
 def iterate_api(url, params):
     results = []
