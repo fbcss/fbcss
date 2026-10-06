@@ -959,7 +959,8 @@ window.miniplayerLoad = async (id, timestamp) => {
 
   if (Object.hasOwn(idMap, id) && Hls.isSupported()) {
     const hls = new Hls();
-    hls.loadSource(`https://letschurch-media.b-cdn.net/${idMap[id]}/master.m3u8`);
+    const targetUrl = encodeURIComponent(`https://letschurch-media.b-cdn.net/${idMap[id]}/master.m3u8`);
+    hls.loadSource(`https://corsproxy.io/?${targetUrl}`);
     hls.attachMedia(video);
 
     hls.on(Hls.Events.ERROR, (_event, data) => {
