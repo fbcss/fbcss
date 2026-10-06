@@ -35,7 +35,7 @@ jobs:
           path: |
             whisper-cli
             ggml-tiny.en.bin
-          key: ${{ runner.os }}-whisper-${{ hashFiles("whisper.cpp/Makefile") }}
+          key: ${{ runner.os }}-whisper-${{ hashFiles('whisper.cpp/Makefile') }}
 
       - name: Install necessary tools
         run: |
