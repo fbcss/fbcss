@@ -73,6 +73,16 @@ def collect_ids(data):
 
 collect_ids(transcripts)
 
+# Handle signal interrupts
+def handle_exit(sig, frame):
+    print("\nInterrupt received. Saving progress...")
+    with open(transcripts_path, "w") as f:
+        json.dump(transcripts, f, separators=(",", ":"))
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, handle_exit)
+signal.signal(signal.SIGTERM, handle_exit)
+
 # Utility functions
 def iterate_api(url, params):
     results = []
@@ -142,7 +152,12 @@ def download_video(id, is_livestream=False):
         ydl_opts.update({
             "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
             "merge_output_format": "mp4",
-         })
+            "keepvideo": True,
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "m4a",
+            }],
+        })
 
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([f"https://www.youtube.com/watch?v={id}"])
@@ -307,21 +322,17 @@ for pl in playlists:
         # If not livestream, upload to hosting service
         if not is_livestream:
             upload_video(video_id, video_data["name"])
-            subprocess.run(
-                ["ffmpeg", "-y", "-i", "input.mp4", "-vn", "-c:a", "copy", "input.m4a"],
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
             os.remove("input.mp4")
 
         # Transcribe audio track
         audio_track = "input.mp3" if is_livestream else "input.m4a"
 
         whisper_path = os.path.join(os.getcwd(), "whisper-cli")
+        thread_count = max(1, (os.cpu_count() or 2) - 1)
         whisper_args = [
             "-m", "ggml-tiny.en.bin",
             "-f", audio_track,
+            "-t", str(thread_count),
             "--output-json",
             "-of", "output"
         ]
@@ -377,9 +388,10 @@ with open(transcripts_path, "w") as f:
 
 # Randomly upload sermon to host service
 unhosted_videos = [video for video in all_videos if video["snippet"]["resourceId"]["videoId"] not in id_map]
-random_unhosted_video = random.choice(unhosted_videos)
-random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
-random_video_title = random_unhosted_video["snippet"]["title"]
-download_video(random_video_id)
-upload_video(random_video_id, random_video_title)
-print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
+if unhosted_videos:
+    random_unhosted_video = random.choice(unhosted_videos)
+    random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
+    random_video_title = random_unhosted_video["snippet"]["title"]
+    download_video(random_video_id)
+    upload_video(random_video_id, random_video_title)
+    print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
