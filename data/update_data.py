@@ -172,11 +172,12 @@ def upload_video(id, title):
     }
     access_key = os.environ["IA_ACCESS_KEY"]
     secret_key = os.environ["IA_SECRET_KEY"]
+
+    # Internet Archive compliant id format
+    ia_id = f"yt_{id}"
     
     for attempt in range(retries):
         try:
-            # Internet Archive compliant id format
-            ia_id = f"yt_{id}"
             ia.upload(ia_id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
             
             id_map[id] = True

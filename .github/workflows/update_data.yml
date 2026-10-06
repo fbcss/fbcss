@@ -51,28 +51,27 @@ jobs:
           tar -xf ffmpeg.tar.xz --strip-components=1 -C /tmp/
           sudo mv /tmp/bin/ffmpeg /usr/local/bin/
 
-      - name: Clone whisper.cpp
-        run: git clone https://github.com/ggerganov/whisper.cpp --depth=1 --branch=master --single-branch
-
       - name: Cache Whisper.cpp build and model
         uses: actions/cache@v6
         id: whisper-cache
         with:
           path: |
-            whisper.cpp
+            whisper.cpp/build/bin
             whisper-cli
             ggml-tiny.en.bin
-          key: ${{ runner.os }}-whisper-${{ hashFiles('whisper.cpp/Makefile') }}
+          key: whisper-v1
 
       - name: Build whisper.cpp
         if: steps.whisper-cache.outputs.cache-hit != 'true'
         run: |
           sudo apt install build-essential cmake
+          git clone https://github.com/ggerganov/whisper.cpp --depth=1 --branch=master --single-branch
           cd whisper.cpp
           make
           ./models/download-ggml-model.sh tiny.en
           mv build/bin/whisper-cli ../whisper-cli
           mv models/ggml-tiny.en.bin ../ggml-tiny.en.bin
+          rm whisper.cpp/build/bin/test-*
 
       - name: Save cached cookies to a file
         env:
