@@ -10,19 +10,12 @@ import sys
 import internetarchive as ia
 import random
 
-def signal_handler(sig, frame):
-    print("You ended the process.")
-    subprocess.run(["git", "add", "data/transcripts.json"])
-    subprocess.run(["git", "commit", "-m", "Update transcription"])
-    subprocess.run(["git", "push", "origin", "main"])
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
-
+# Youtube API parameters
+API_PREFIX = "https://www.googleapis.com/youtube/v3/"
 API_KEY = os.environ["API_KEY"]
 CHANNEL_ID = "UC6yzBy1Cof8rKcPQtx1XxKQ"
 
-script_path = os.path.dirname(__file__)
+# Books of the Bible to detect for playlists
 bible_books = (
     # Old Testament
     "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
@@ -53,113 +46,34 @@ bible_books = (
     "Revelation"
 )
 
+# Read metadata files
+script_path = os.path.dirname(__file__)
 transcripts_path = os.path.join(script_path, "transcripts.json")
+id_map_path = os.path.join(script_path, "id_map.json")
+
 with open(transcripts_path, "r") as json_file:
     transcripts = json.load(json_file)
 
-id_map_path = os.path.join(script_path, "id_map.json")
 with open(id_map_path, "r") as json_file:
     id_map = json.load(json_file)
 
-url_prefix = "https://www.googleapis.com/youtube/v3/"
+# Videos to avoid processing, banned or already processed
+BANNED_IDS = {"eqA-3qW-i8k", "KQvhm6KpBOg", "5W5xiaEhK9M"}
+existing_video_ids = set()
+def collect_ids(data):
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if k == "id" and isinstance(v, str):
+                existing_video_ids.add(v)
+            else:
+                collect_ids(v)
+    elif isinstance(data, list):
+        for item in data:
+            collect_ids(item)
 
-def load_playwright_cookies(cookie_filepath="lc_cookies.txt"):
-    cookies = []
-    if not os.path.exists(cookie_filepath):
-        return cookies
-        
-    with open(cookie_filepath, "r") as f:
-        for line in f:
-            if line.startswith("#") or not line.strip():
-                continue
-            
-            parts = line.strip().split("\t")
-            if len(parts) >= 7:
-                domain, flag, path, secure, expiration, name, value = parts[:7]
-                
-                cookie = {
-                    "name": name,
-                    "value": value,
-                    "domain": domain,
-                    "path": path,
-                    "secure": secure.lower() == "true",
-                }
-                
-                try:
-                    cookie["expires"] = float(expiration)
-                except ValueError:
-                    pass
-                    
-                cookies.append(cookie)
-                
-    return cookies
+collect_ids(transcripts)
 
-def download_video(id, title=""):
-    ydl_opts = {
-        "cookiefile": "cookies.txt",
-        "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
-        "remote_components": ["ejs:github"],
-    }
-    if title == "live":
-        # Audio-only for livestreams, pure transcription, no hosting, quicker
-        ydl_opts.update({
-            "format": (
-                "bestaudio[acodec!=none][language=en]/"
-                "bestaudio[acodec!=none][language=original]/"
-                "bestaudio[acodec!=none]/best"
-            ),
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "192",
-            }],
-        })
-    else:
-        # Video included for clipped sermons, able to be hosted
-        ydl_opts.update({
-            "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
-            "merge_output_format": "mp4",
-            "postprocessors": [{
-                "key": "FFmpegVideoConvertor",
-                "preferedformat": "mp4",
-            }],
-         })
-
-    with YoutubeDL(ydl_opts) as ydl:
-        ydl.download([
-            "https://www.youtube.com/watch?v=" + id
-        ])
-
-def upload_video(id, title):
-    retries = 5
-    delay = 15
-
-    metadata = {
-        "mediatype": "movies",
-        "title": title,
-    }
-    access_key = os.environ["IA_ACCESS_KEY"]
-    secret_key = os.environ["IA_SECRET_KEY"]
-    
-    for attempt in range(retries):
-        try:
-            ia.upload(id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
-            
-            id_map[id] = True
-            with open(id_map_path, "w") as f:
-                json.dump(id_map, f, separators=(",", ":"))
-
-            return True
-        except requests.exceptions.HTTPError as e:
-            if "503" in str(e) or "Slow Down" in str(e):
-                if attempt < retries - 1:
-                    print(f"Rate limited (503). Retrying in {delay} seconds (Attempt {attempt + 1}/{retries})...")
-                    time.sleep(delay)
-                    delay *= 2 
-                    continue
-            raise e
-    raise Exception(f"Failed to upload {id} after {retries} retries due to rate limiting.")
-
+# Utility functions
 def iterate_api(url, params):
     results = []
     next_page = None
@@ -202,7 +116,68 @@ def contains_video_with_date(data, target_date):
 
     return False
 
-url = url_prefix + "playlists"
+# Main video handling functions
+def download_video(id, is_livestream=False):
+    ydl_opts = {
+        "cookiefile": "cookies.txt",
+        "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
+        "remote_components": ["ejs:github"],
+    }
+    if is_livestream:
+        # Audio-only for livestreams, pure transcription, no hosting, quicker
+        ydl_opts.update({
+            "format": (
+                "bestaudio[acodec!=none][language=en]/"
+                "bestaudio[acodec!=none][language=original]/"
+                "bestaudio[acodec!=none]/best"
+            ),
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "128",
+            }],
+        })
+    else:
+        # Video included for clipped sermons, able to be hosted
+        ydl_opts.update({
+            "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+            "merge_output_format": "mp4",
+         })
+
+    with YoutubeDL(ydl_opts) as ydl:
+        ydl.download([f"https://www.youtube.com/watch?v={id}"])
+
+def upload_video(id, title):
+    retries = 5
+    delay = 15
+
+    metadata = {
+        "mediatype": "movies",
+        "title": title,
+    }
+    access_key = os.environ["IA_ACCESS_KEY"]
+    secret_key = os.environ["IA_SECRET_KEY"]
+    
+    for attempt in range(retries):
+        try:
+            ia.upload(id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
+            
+            id_map[id] = True
+            with open(id_map_path, "w") as f:
+                json.dump(id_map, f, separators=(",", ":"))
+
+            return True
+        except requests.exceptions.HTTPError as e:
+            if "503" in str(e) or "Slow Down" in str(e):
+                if attempt < retries - 1:
+                    print(f"Rate limited (503). Retrying in {delay} seconds (Attempt {attempt + 1}/{retries})...")
+                    time.sleep(delay)
+                    delay *= 2 
+                    continue
+            raise e
+    raise Exception(f"Failed to upload {id} after {retries} retries due to rate limiting.")
+
+url = API_PREFIX + "playlists"
 params = {
     "part": "snippet",
     "channelId": CHANNEL_ID,
@@ -226,6 +201,7 @@ all_videos = []
 print("Found " + str(len(playlists)) + " playlists.")
 for pl in playlists:
     title = pl["snippet"]["title"]
+    is_livestream = title == "live"
     data_container = None
 
     isGuestSpeakers = title.lower() == "guest speakers"
@@ -241,14 +217,14 @@ for pl in playlists:
         data_container = transcripts["guests"]
     elif title.lower() == "pastor rob mcnutt":
         data_container = sum(transcripts["books"].values(), transcripts["other"])
-    elif title == "live":
+    elif is_livestream:
         data_container = [transcripts.setdefault("live", {})]
     else:
         continue
 
     videos = []
-    if title == "live":
-        url = url_prefix + "search"
+    if is_livestream:
+        url = API_PREFIX + "search"
         params = {
             "order": "date",
             "part": "snippet",
@@ -285,7 +261,7 @@ for pl in playlists:
             if not next_page:
                 break
     else:
-        url = url_prefix + "playlistItems"
+        url = API_PREFIX + "playlistItems"
         params = {
             "part": "snippet",
             "playlistId": pl["id"],
@@ -304,9 +280,10 @@ for pl in playlists:
 
         timestamp = video["title"].split(" ")[0]
 
+        video_id = video["resourceId"]["videoId"]
         video_data = {
             "name": video["title"],
-            "id": video["resourceId"]["videoId"],
+            "id": video_id
             "date": timestamp
         }
         video_container = data_container
@@ -317,77 +294,84 @@ for pl in playlists:
             else:
                 video_container = video_container["other"]
 
-        bannedIds = ("eqA-3qW-i8k", "KQvhm6KpBOg", "KQvhm6KpBOg", "5W5xiaEhK9M")
-        videoExists = next((x for x in video_container if x["id"] == video_data["id"]), None)
-        if not videoExists and not video_data["id"] in bannedIds:
-            if title.lower() == "pastor rob mcnutt":
-                video_container = transcripts["other"]
+        if not video_id or video_id in BANNED_IDS or video_id in existing_video_ids:
+            continue
 
-            download_video(video_data["id"], title)
+        if title.lower() == "pastor rob mcnutt":
+            video_container = transcripts["other"]
 
-            # If not live, upload to hosting service
-            if title != "live":
-                upload_video(video_data["id"], video_data["name"])
-                subprocess.run(
-                    ["ffmpeg", "-y", "-i", "input.mp4", "-vn", "-ab", "192k", "input.mp3"],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-                os.remove("input.mp4")
+        download_video(video_id, is_livestream)
 
-            whisper_path = os.path.join(os.getcwd(), "whisper-cli")
-            whisper_args = [
-                "-m", "ggml-tiny.en.bin",
-                "-f", "input.mp3",
-                "--output-json",
-                "-of", "output"
-            ]
-            subprocess.run([whisper_path] + whisper_args)
+        # If not livestream, upload to hosting service
+        if not is_livestream:
+            upload_video(video_id, video_data["name"])
+            subprocess.run(
+                ["ffmpeg", "-y", "-i", "input.mp4", "-vn", "-c:a", "copy", "input.m4a"],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            os.remove("input.mp4")
 
-            with open("output.json", "r") as json_file:
-                video_transcript = json.load(json_file)
+        # Transcribe audio track
+        audio_track = "input.mp3" if is_livestream else "input.m4a"
 
-            os.remove("input.mp3")
+        whisper_path = os.path.join(os.getcwd(), "whisper-cli")
+        whisper_args = [
+            "-m", "ggml-tiny.en.bin",
+            "-f", audio_track,
+            "--output-json",
+            "-of", "output"
+        ]
+        subprocess.run([whisper_path] + whisper_args)
 
-            video_transcript = video_transcript["transcription"]
-            for i, snippet in enumerate(video_transcript):
-                timestamp = snippet["timestamps"]["from"].split(",")[0]
-                h, m, s = timestamp.split(":")
-                timestamp = f"{h + ':' if h != '00' else ''}{m}:{s}"
+        with open("output.json", "r") as json_file:
+            video_transcript = json.load(json_file)
+
+        os.remove(audio_track)
+
+        video_transcript = video_transcript["transcription"]
+        for i, snippet in enumerate(video_transcript):
+            timestamp = snippet["timestamps"]["from"].split(",")[0]
+            h, m, s = timestamp.split(":")
+            timestamp = f"{h + ':' if h != '00' else ''}{m}:{s}"
     
-                text = snippet["text"]
-                text = text[1:]
-                if i != len(video_transcript) - 1:
-                    next_line = video_transcript[i + 1]["text"]
-                    if not next_line.startswith(" "):
-                        split_line = next_line.split(" ", 1)
-                        text += split_line[0]
-                        if " " not in next_line.strip():
-                            del video_transcript[i + 1]
-                        else:
-                            next_line = " " + split_line[1]
-                        video_transcript[i + 1]["text"] = next_line
-                    text += " "
+            text = snippet["text"]
+            text = text[1:]
+            if i != len(video_transcript) - 1:
+                next_line = video_transcript[i + 1]["text"]
+                if not next_line.startswith(" "):
+                    split_line = next_line.split(" ", 1)
+                    text += split_line[0]
+                    if " " not in next_line.strip():
+                        del video_transcript[i + 1]
+                    else:
+                        next_line = " " + split_line[1]
+                    video_transcript[i + 1]["text"] = next_line
+                text += " "
 
-                video_transcript[i] = [ timestamp, text ]
+            video_transcript[i] = [ timestamp, text ]
 
-            video_data["transcript"] = video_transcript
-            os.remove("output.json")
+        video_data["transcript"] = video_transcript
+        os.remove("output.json")
 
-            if title == "live":
-                transcripts["live"] = video_data
-            else:
-                video_container.append(video_data)
+        if is_livestream:
+            transcripts["live"] = video_data
+        else:
+            video_container.append(video_data)
 
-            with open(transcripts_path, "w") as f:
-                json.dump(transcripts, f, separators=(",", ":"))
+        # Add newly processed video to set of processed videos
+        existing_video_ids.add(video_id)
 
-            end_time = time.time()
-            elapsed = int(end_time - start_time)
-            minutes = elapsed // 60
-            seconds = elapsed % 60
-            print(f"\nCompleted video in {minutes:02d}:{seconds:02d}")
+        end_time = time.time()
+        elapsed = int(end_time - start_time)
+        minutes = elapsed // 60
+        seconds = elapsed % 60
+        print(f"\nCompleted video in {minutes:02d}:{seconds:02d}")
+
+# Update transcripts file for end of script
+with open(transcripts_path, "w") as f:
+    json.dump(transcripts, f, separators=(",", ":"))
 
 # Randomly upload sermon to host service
 unhosted_videos = [video for video in all_videos if video["snippet"]["resourceId"]["videoId"] not in id_map]
