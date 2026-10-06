@@ -37,20 +37,17 @@ jobs:
         with:
           deno-version: lts
 
-      - name: Cache ffmpeg tarball
+      - name: Cache ffmpeg
         id: cache-ffmpeg
         uses: actions/cache@v4
         with:
-          path: ffmpeg.tar.xz
-          key: ffmpeg-master-latest
+          path: /usr/local/bin/ffmpeg
+          key: ffmpeg-binary
 
-      - name: Download ffmpeg tarball
+      - name: Install ffmpeg
         if: steps.cache-ffmpeg.outputs.cache-hit != 'true'
         run: |
           curl -L https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz -o ffmpeg.tar.xz
-
-      - name: Extract ffmpeg tarball
-        run: |
           tar -xf ffmpeg.tar.xz --strip-components=1 -C /tmp/
           sudo mv /tmp/bin/ffmpeg /usr/local/bin/
 
