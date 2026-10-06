@@ -89,26 +89,25 @@ def load_playwright_cookies(cookie_filepath="lc_cookies.txt"):
                 
     return cookies
 
-def upload_video(video_id):
+def upload_video(id, title):
     retries = 5
     delay = 15
 
     metadata = {
         "mediatype": "movies",
-        "title": "FBC Sermon",
-        "collection": "fbc_sermons"
+        "title": title,
     }
     access_key = os.environ["IA_ACCESS_KEY"]
     secret_key = os.environ["IA_SECRET_KEY"]
     
     for attempt in range(retries):
         try:
-            ia.upload(video_id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
+            ia.upload(id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
 
             id_map_path = os.path.join(script_path, "id_map.json")
             with open(id_map_path, "r") as json_file:
                 id_map = json.load(json_file)
-            id_map[video_id] = True
+            id_map[id] = True
             with open(id_map_path, "w") as f:
                 json.dump(id_map, f, separators=(",", ":"))
 
@@ -121,7 +120,7 @@ def upload_video(video_id):
                     delay *= 2 
                     continue
             raise e
-    raise Exception(f"Failed to upload {video_id} after {retries} retries due to rate limiting.")
+    raise Exception(f"Failed to upload {id} after {retries} retries due to rate limiting.")
 
 def iterate_api(url, params):
     results = []
@@ -318,7 +317,7 @@ for pl in playlists:
 
             # If not live, upload to hosting service
             if title != "live":
-                upload_video(video_data["id"])
+                upload_video(video_data["id"], video_data["name"])
                 subprocess.run(
                     ["ffmpeg", "-y", "-i", "input.mp4", "-vn", "-ab", "192k", "input.mp3"],
                     check=True,
