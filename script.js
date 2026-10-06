@@ -957,7 +957,7 @@ window.miniplayerLoad = async (id, timestamp) => {
   }
 
   if (Object.hasOwn(idMap, id)) {
-    video.src = `https://archive.org/download/yt_${id}/input.mp4`;
+    video.src = `https://archive.org/download/fbc_${id}/input.mp4`;
     video.currentTime = totalSeconds;
     video.play().catch(e => console.log("Playback prevented:", e));
     return;
