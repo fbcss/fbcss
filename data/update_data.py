@@ -115,7 +115,7 @@ def upload_video(video_id):
             id_map = json.load(json_file)
         id_map[video_id] = media_id
         with open(id_map_path, "w") as f:
-            json.dump(id_map, f)
+            json.dump(id_map, f, separators=(",", ":"))
 
         page.get_by_text("Uploading file...").wait_for(state="detached", timeout=10000000)
 
@@ -370,7 +370,7 @@ for pl in playlists:
                 video_container.append(video_data)
 
             with open(transcripts_path, "w") as f:
-                json.dump(transcripts, f)
+                json.dump(transcripts, f, separators=(",", ":"))
 
             end_time = time.time()
             elapsed = int(end_time - start_time)
