@@ -43,7 +43,7 @@ jobs:
 
       - name: Install necessary tools
         run: |
-          sudo apt update && sudo apt install build-essential ffmpeg cmake
+          sudo apt update && sudo apt install ffmpeg
           pip install -r data/requirements.txt
           curl -fsSL https://deno.land/install.sh | sh -s -- -y
           echo "$HOME/.deno/bin" >> $GITHUB_PATH
@@ -51,6 +51,7 @@ jobs:
       - name: Build whisper.cpp
         if: steps.whisper-cache.outputs.cache-hit != 'true'
         run: |
+          sudo apt install build-essential cmake
           cd whisper.cpp
           make
           ./models/download-ggml-model.sh tiny.en
