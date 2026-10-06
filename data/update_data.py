@@ -221,6 +221,8 @@ playlists.append({
     }
 })
 
+all_videos = []
+
 print("Found " + str(len(playlists)) + " playlists.")
 for pl in playlists:
     title = pl["snippet"]["title"]
@@ -291,15 +293,7 @@ for pl in playlists:
             "key": API_KEY
         }
         videos = iterate_api(url, params)
-
-    # Randomly upload sermon to host service
-    unhosted_videos = [video for video in videos if video["snippet"]["resourceId"]["videoId"] not in id_map]
-    random_unhosted_video = random.choice(unhosted_videos)
-    random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
-    random_video_title = random_unhosted_video["snippet"]["title"]
-    download_video(random_video_id)
-    upload_video(random_video_id, random_video_title)
-    print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
+        all_videos.extend(videos)
 
     print("\n" + str(len(videos)) + " videos found in '" + title + "'.")
     for i, video in enumerate(videos):
@@ -340,6 +334,7 @@ for pl in playlists:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE
                 )
+                os.remove("input.mp4")
 
             whisper_path = os.path.join(os.getcwd(), "whisper-cli")
             whisper_args = [
@@ -394,3 +389,11 @@ for pl in playlists:
             seconds = elapsed % 60
             print(f"\nCompleted video in {minutes:02d}:{seconds:02d}")
 
+# Randomly upload sermon to host service
+unhosted_videos = [video for video in all_videos if video["snippet"]["resourceId"]["videoId"] not in id_map]
+random_unhosted_video = random.choice(unhosted_videos)
+random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
+random_video_title = random_unhosted_video["snippet"]["title"]
+download_video(random_video_id)
+upload_video(random_video_id, random_video_title)
+print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
