@@ -52,7 +52,7 @@ jobs:
           sudo mv /tmp/bin/ffmpeg /usr/local/bin/
 
       - name: Clone whisper.cpp
-        run: git clone https://github.com/ggerganov/whisper.cpp --depth=1
+        run: git clone https://github.com/ggerganov/whisper.cpp --depth=1 --branch=master --single-branch
 
       - name: Cache Whisper.cpp build and model
         uses: actions/cache@v6
