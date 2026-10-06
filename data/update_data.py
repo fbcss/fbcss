@@ -9,6 +9,7 @@ import signal
 import sys
 import internetarchive as ia
 import random
+import shutil
 
 # Youtube API parameters
 API_PREFIX = "https://www.googleapis.com/youtube/v3/"
@@ -127,12 +128,14 @@ def contains_video_with_date(data, target_date):
     return False
 
 # Main video handling functions
-def download_video(id, is_livestream=False):
+def download_video(id, is_livestream=False, extract_audio=True):
     ydl_opts = {
         "cookiefile": "cookies.txt",
         "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
         "remote_components": ["ejs:github"],
+        "postprocessor_args": {"extractaudio": ["-ar", "16000", "-ac", "1"]},
     }
+    wav_pp = {"key": "FFmpegExtractAudio", "preferredcodec": "wav"}
     if is_livestream:
         # Audio-only for livestreams, pure transcription, no hosting, quicker
         ydl_opts.update({
@@ -141,11 +144,7 @@ def download_video(id, is_livestream=False):
                 "bestaudio[acodec!=none][language=original]/"
                 "bestaudio[acodec!=none]/best"
             ),
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "128",
-            }],
+            "postprocessors": [wav_pp],
         })
     else:
         # Video included for clipped sermons, able to be hosted
@@ -153,10 +152,7 @@ def download_video(id, is_livestream=False):
             "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
             "merge_output_format": "mp4",
             "keepvideo": True,
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "wav",
-            }],
+            "postprocessors": [wav_pp] if extract_audio else [],
         })
 
     with YoutubeDL(ydl_opts) as ydl:
@@ -326,13 +322,11 @@ for pl in playlists:
             os.remove("input.mp4")
 
         # Transcribe audio track
-        audio_track = "input.mp3" if is_livestream else "input.wav"
-
-        whisper_path = os.path.join(os.getcwd(), "whisper-cli")
-        thread_count = max(1, (os.cpu_count() or 2) - 1)
+        whisper_path = shutil.which("whisper-cli")
+        thread_count = os.cpu_count() or 2
         whisper_args = [
-            "-m", "ggml-tiny.en.bin",
-            "-f", audio_track,
+            "-m", os.environ["WHISPER_MODEL"],
+            "-f", "input.wav",
             "-t", str(thread_count),
             "--output-json",
             "-of", "output"
@@ -342,7 +336,7 @@ for pl in playlists:
         with open("output.json", "r") as json_file:
             video_transcript = json.load(json_file)
 
-        os.remove(audio_track)
+        os.remove("input.wav")
 
         video_transcript = video_transcript["transcription"]
         for i, snippet in enumerate(video_transcript):
@@ -389,10 +383,10 @@ with open(transcripts_path, "w") as f:
 
 # Randomly upload sermon to host service
 unhosted_videos = [video for video in all_videos if video["snippet"]["resourceId"]["videoId"] not in id_map]
-if unhosted_videos:
+if os.environ["BACKFILL"] == "true" and unhosted_videos:
     random_unhosted_video = random.choice(unhosted_videos)
     random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
     random_video_title = random_unhosted_video["snippet"]["title"]
-    download_video(random_video_id)
+    download_video(random_video_id, extract_audio=False)
     upload_video(random_video_id, random_video_title)
     print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
