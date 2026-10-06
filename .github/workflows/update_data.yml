@@ -21,17 +21,22 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 1
+          persist-credentials: true
+          submodules: false
+          lfs: false
 
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.11"
+          python-version: "3.11.16"
+          check-latest: false
+          update-environment: false
           cache: "pip"
           cache-dependency-path: data/requirements.txt
 
       - name: Install Python dependencies
         run: |
-          pip install --check-hash -r data/requirements.txt || pip install -r data/requirements.txt
+          pip install -r data/requirements.txt
 
       - name: Set up Deno
         uses: denoland/setup-deno@v2
