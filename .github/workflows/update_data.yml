@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -87,6 +87,7 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Automated transcription"
-            git pull --rebase origin main
-            git push -u origin main
+            git fetch origin main --depth=1
+            git rebase --onto origin/main HEAD~1 HEAD
+            git push origin HEAD:main
           fi
