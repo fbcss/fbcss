@@ -28,11 +28,15 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
+      - name: Clone whisper.cpp
+        run: git clone https://github.com/ggerganov/whisper.cpp
+
       - name: Cache Whisper.cpp build and model
         uses: actions/cache@v4
         id: whisper-cache
         with:
           path: |
+            whisper.cpp
             whisper-cli
             ggml-tiny.en.bin
           key: ${{ runner.os }}-whisper-${{ hashFiles('whisper.cpp/Makefile') }}
@@ -47,7 +51,6 @@ jobs:
       - name: Build whisper.cpp
         if: steps.whisper-cache.outputs.cache-hit != true
         run: |
-          git clone https://github.com/ggerganov/whisper.cpp
           cd whisper.cpp
           make
           ./models/download-ggml-model.sh tiny.en
