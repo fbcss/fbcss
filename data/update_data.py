@@ -111,14 +111,17 @@ def upload_video(video_id):
             id_map[video_id] = True
             with open(id_map_path, "w") as f:
                 json.dump(id_map, f, separators=(",", ":"))
+
+            return True
         except requests.exceptions.HTTPError as e:
             if "503" in str(e) or "Slow Down" in str(e):
-                print(f"Rate limited by IA (Attempt {attempt + 1}/{retries}). Waiting {delay}s...")
-                time.sleep(delay)
-                delay *= 2
-            else:
-                raise e
-    raise Exception(f"Failed to upload {identifier} after {retries} retries due to rate limiting.")
+                if attempt < retries - 1:
+                    print(f"Rate limited (503). Retrying in {delay} seconds (Attempt {attempt + 1}/{retries})...")
+                    time.sleep(delay)
+                    delay *= 2 
+                    continue
+            raise e
+    raise Exception(f"Failed to upload {video_id} after {retries} retries due to rate limiting.")
 
 def iterate_api(url, params):
     results = []
