@@ -94,22 +94,14 @@ def load_playwright_cookies(cookie_filepath="lc_cookies.txt"):
                 
     return cookies
 
-def download_video(id):
+def download_video(id, title=""):
     ydl_opts = {
         "cookiefile": "cookies.txt",
         "outtmpl": os.path.join(os.getcwd(), "input.%(ext)s"),
         "remote_components": ["ejs:github"],
     }
-    if title != "live":
-        ydl_opts.update({
-            "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
-            "merge_output_format": "mp4",
-            "postprocessors": [{
-                "key": "FFmpegVideoConvertor",
-                "preferedformat": "mp4",
-            }],
-         })
-    else:
+    if title == "live":
+        # Audio-only for livestreams, pure transcription, no hosting, quicker
         ydl_opts.update({
             "format": (
                 "bestaudio[acodec!=none][language=en]/"
@@ -122,6 +114,16 @@ def download_video(id):
                 "preferredquality": "192",
             }],
         })
+    else:
+        # Video included for clipped sermons, able to be hosted
+        ydl_opts.update({
+            "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+            "merge_output_format": "mp4",
+            "postprocessors": [{
+                "key": "FFmpegVideoConvertor",
+                "preferedformat": "mp4",
+            }],
+         })
 
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([
@@ -327,7 +329,7 @@ for pl in playlists:
             if title.lower() == "pastor rob mcnutt":
                 video_container = transcripts["other"]
 
-            download_video(video_data["id"])
+            download_video(video_data["id"], title)
 
             # If not live, upload to hosting service
             if title != "live":
