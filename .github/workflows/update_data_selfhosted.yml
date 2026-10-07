@@ -1,0 +1,55 @@
+name: Update transcripts data (Self-Hosted)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: transcripts
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: [self-hosted, qnap]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Install Python dependencies
+        run: python3 -m venv .venv && .venv/bin/pip install -r data/requirements.txt
+
+      - name: Save cached cookies to a file
+        env:
+          COOKIES: ${{ secrets.COOKIES }}
+        run: echo "$COOKIES" | base64 -d > cookies.txt
+
+      - name: Run python script
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+          IA_ACCESS_KEY: ${{ secrets.IA_ACCESS_KEY }}
+          IA_SECRET_KEY: ${{ secrets.IA_SECRET_KEY }}
+          BACKFILL: ${{ github.event.schedule == '3 7 * * *' || github.event_name == 'workflow_dispatch' }}
+          PYTHONUNBUFFERED: 1
+        run: ./.venv/bin/python ./data/update_data.py
+
+      - name: Push files to GitHub
+        if: ${{ success() || failure() || cancelled() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "fbcss-deploy[bot]"
+          git config --global user.email "fbcss-deploy[bot]@users.noreply.github.com"
+          git add data/transcripts.json data/id_map.json
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Automated transcription"
+            git fetch origin main --depth=1
+            git rebase --onto origin/main HEAD~1 HEAD
+            git push origin HEAD:main
+          fi
+
+      - name: Clean temp files
+        if: always()
+        run: rm -f input.* output.json cookies.txt
