@@ -167,7 +167,7 @@ def download_video(id, is_livestream=False, extract_audio=True):
         ydl.download([f"https://www.youtube.com/watch?v={id}"])
 
 def upload_video(id, title):
-    retries = 5
+    retries = 4
     delay = 15
 
     metadata = {
