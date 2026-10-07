@@ -163,11 +163,13 @@ def download_video(id, is_livestream=False, extract_audio=True):
             "postprocessors": [wav_pp] if extract_audio else [],
         })
 
+    print("Downloading video...")
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([f"https://www.youtube.com/watch?v={id}"])
+    print("Successfully downloaded video.")
 
 def upload_video(id, title):
-    retries = 5
+    retries = 4
     delay = 15
 
     metadata = {
@@ -182,6 +184,7 @@ def upload_video(id, title):
     
     for attempt in range(retries):
         try:
+            print("Uploading video to the Internet Archive...")
             ia.upload(ia_id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
             
             id_map[id] = True
@@ -339,7 +342,9 @@ for pl in playlists:
             "--output-json",
             "-of", "output"
         ]
+        print("Transcribing video...")
         subprocess.run([whisper_path] + whisper_args)
+        print("Successfully transcribed video.")
 
         with open("output.json", "r") as json_file:
             video_transcript = json.load(json_file)
