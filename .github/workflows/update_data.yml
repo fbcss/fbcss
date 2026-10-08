@@ -99,7 +99,7 @@ jobs:
       - name: Save cached cookies to a file
         env:
           COOKIES: ${{ secrets.COOKIES }}
-        run: echo "$COOKIES" | base64 -d > cookies.txt
+        run: echo "$COOKIES" > cookies.txt
 
       - name: Run python script
         env:
