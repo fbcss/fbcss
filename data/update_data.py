@@ -397,9 +397,14 @@ with open(transcripts_path, "w") as f:
 # Randomly upload sermon to host service
 unhosted_videos = [video for video in all_videos if video["snippet"]["resourceId"]["videoId"] not in id_map]
 if os.environ["BACKFILL"] == "true" and unhosted_videos:
-    random_unhosted_video = random.choice(unhosted_videos)
-    random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
-    random_video_title = random_unhosted_video["snippet"]["title"]
-    download_video(random_video_id, extract_audio=False)
-    upload_video(random_video_id, random_video_title)
-    print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
+    while unhosted_videos:
+        random_unhosted_video = random.choice(unhosted_videos)
+        random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
+        random_video_title = random_unhosted_video["snippet"]["title"]
+        download_video(random_video_id, extract_audio=False)
+        upload_video(random_video_id, random_video_title)
+        unhosted_videos = [
+            video for video in unhosted_videos
+            if video["snippet"]["resourceId"]["videoId"] != random_video_id
+        ]
+        print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
