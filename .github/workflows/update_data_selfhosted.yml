@@ -7,28 +7,6 @@ on:
         type: boolean
         default: false
         description: Enables the sermon finder script instead of the update data one.
-        
-  schedule:
-    - cron: "3 7 * * *"
-      timezone: "America/New_York"
-    - cron: "56 8 * * *"
-      timezone: "America/New_York"
-    - cron: "50 10 * * *"
-      timezone: "America/New_York"
-    - cron: "43 12 * * *"
-      timezone: "America/New_York"
-    - cron: "36 14 * * *"
-      timezone: "America/New_York"
-    - cron: "30 16 * * *"
-      timezone: "America/New_York"
-    - cron: "23 18 * * *"
-      timezone: "America/New_York"
-    - cron: "16 20 * * *"
-      timezone: "America/New_York"
-    - cron: "10 22 * * *"
-      timezone: "America/New_York"
-    - cron: "3 0 * * *"
-      timezone: "America/New_York"
 
 concurrency:
   group: transcripts
