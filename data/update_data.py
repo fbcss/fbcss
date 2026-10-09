@@ -400,7 +400,14 @@ with open(transcripts_path, "w") as f:
     json.dump(transcripts, f, separators=(",", ":"))
 
 # Randomly upload sermon to host service
-unhosted_videos = [video for video in all_videos if video["snippet"]["resourceId"]["videoId"] not in id_map]
+seen = set(id_map)
+unique_videos = []
+for video in all_videos:
+    v_id = video["snippet"]["resourceId"]["videoId"]
+    if v_id not in seen:
+        seen.add(v_id)
+        unique_videos.append(video)
+
 if os.environ["BACKFILL"] == "true" and unhosted_videos:
     while unhosted_videos:
         print(f"Found {len(unhosted_videos)} unhosted videos")
