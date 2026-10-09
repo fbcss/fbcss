@@ -434,7 +434,3 @@ if os.environ["BACKFILL"] == "true" and unhosted_videos:
             if video["snippet"]["resourceId"]["videoId"] != random_video_id
         ]
         print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
-        now = datetime.now().time()
-        cutoff = time(17, 56)
-        if now >= cutoff:
-            break
