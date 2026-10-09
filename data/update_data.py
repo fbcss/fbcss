@@ -418,7 +418,8 @@ seen = set(id_map)
 unhosted_videos = []
 for video in all_videos:
     v_id = video["snippet"]["resourceId"]["videoId"]
-    if v_id not in seen:
+    v_title = video["snippet"]["title"]
+    if v_id not in seen and v_title != "Private video":
         seen.add(v_id)
         unhosted_videos.append(video)
 
