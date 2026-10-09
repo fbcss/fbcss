@@ -197,7 +197,6 @@ def upload_video(id, title):
                 secret_key=IA_SECRET_KEY,
                 metadata=ia_metadata,
                 headers=ia_headers,
-                fast_fail=True,
                 retries=15,
                 verbose=True
             )
