@@ -304,12 +304,13 @@ for pl in playlists:
         video = video["snippet"]
         video_id = video["resourceId"]["videoId"]
         video_title = video["title"]
+        print(f"Title: {video_title}")
 
         if (
           not video_id or # No video id
           video_id in BANNED_IDS or # Video is banned from the Sermon Search
           video_id in existing_video_ids or # Video has already been processed
-          (matched_book and "live!" in video_title.lower()) # Video is a livestream in a book study
+          video_title == "" # Video is unavailable, i.e., the title is missing
         ):
             continue
 
