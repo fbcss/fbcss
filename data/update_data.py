@@ -1,7 +1,7 @@
 import os
 import requests
 import json
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, UTC, time
 from yt_dlp import YoutubeDL
 import subprocess
 import time
@@ -197,7 +197,7 @@ def upload_video(id, title):
                 secret_key=IA_SECRET_KEY,
                 metadata=ia_metadata,
                 headers=ia_headers,
-                retries=15,
+                retries=5,
                 verbose=True
             )
             
@@ -206,15 +206,13 @@ def upload_video(id, title):
                 json.dump(id_map, f, separators=(",", ":"))
 
             return True
-        except requests.exceptions.HTTPError as e:
-            if "503" in str(e) or "Slow Down" in str(e):
-                if attempt < retries - 1:
-                    print(f"Rate limited (503). Retrying in {delay} seconds (Attempt {attempt + 1}/{retries})...")
-                    time.sleep(delay)
-                    delay *= 2 
-                    continue
-            raise e
-    raise Exception(f"Failed to upload {id} after {retries} retries due to rate limiting.")
+        except (requests.exceptions.RequestException, Exception) as e:
+            if attempt < retries - 1:
+                print(f"Upload attempt {attempt + 1}/{retries} failed: {e}. Retrying in {delay} seconds...")
+                time.sleep(delay)
+                delay *= 2
+            else:
+                raise e
 
 url = API_PREFIX + "playlists"
 params = {
@@ -436,3 +434,7 @@ if os.environ["BACKFILL"] == "true" and unhosted_videos:
             if video["snippet"]["resourceId"]["videoId"] != random_video_id
         ]
         print("\nHosted random video: " + random_video_title + " (" + random_video_id + ")")
+        now = datetime.now().time()
+        cutoff = time(17, 56)
+        if now >= cutoff:
+            break
