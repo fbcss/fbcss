@@ -23,10 +23,6 @@ IA_SECRET_KEY = os.environ["IA_SECRET_KEY"]
 ia_headers = {
     "x-archive-queue-derive": "0",
 }
-ia_metadata = {
-    "mediatype": "movies",
-    "title": title,
-}
 
 # Books of the Bible to detect for playlists
 bible_books = (
@@ -182,6 +178,11 @@ def download_video(id, is_livestream=False, extract_audio=True):
 def upload_video(id, title):
     retries = 4
     delay = 15
+
+    ia_metadata = {
+        "mediatype": "movies",
+        "title": title,
+    }
 
     # Internet Archive compliant id format
     ia_id = f"fbc_{id}"
