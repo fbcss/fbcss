@@ -15,6 +15,7 @@ concurrency:
 jobs:
   build:
     runs-on: [self-hosted, qnap]
+    timeout-minutes: 7200
     steps:
       - uses: actions/checkout@v7
         with:
