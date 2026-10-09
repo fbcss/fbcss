@@ -17,6 +17,17 @@ API_PREFIX = "https://www.googleapis.com/youtube/v3/"
 API_KEY = os.environ["API_KEY"]
 CHANNEL_ID = "UC6yzBy1Cof8rKcPQtx1XxKQ"
 
+# Internet Archive keys and configs
+IA_ACCESS_KEY = os.environ["IA_ACCESS_KEY"]
+IA_SECRET_KEY = os.environ["IA_SECRET_KEY"]
+ia_headers = {
+    "x-archive-queue-derive": "0",
+}
+ia_metadata = {
+    "mediatype": "movies",
+    "title": title,
+}
+
 # Books of the Bible to detect for playlists
 bible_books = (
     # Old Testament
@@ -172,20 +183,23 @@ def upload_video(id, title):
     retries = 4
     delay = 15
 
-    metadata = {
-        "mediatype": "movies",
-        "title": title,
-    }
-    access_key = os.environ["IA_ACCESS_KEY"]
-    secret_key = os.environ["IA_SECRET_KEY"]
-
     # Internet Archive compliant id format
     ia_id = f"fbc_{id}"
     
     for attempt in range(retries):
         try:
             print("Uploading video to the Internet Archive...")
-            ia.upload(ia_id, files=["input.mp4"], access_key=access_key, secret_key=secret_key, metadata=metadata)
+            ia.upload(
+                ia_id,
+                files=["input.mp4"],
+                access_key=IA_ACCESS_KEY,
+                secret_key=IA_SECRET_KEY,
+                metadata=ia_metadata,
+                headers=ia_headers,
+                fast_fail=True,
+                retries=15,
+                verbose=True
+            )
             
             id_map[id] = True
             with open(id_map_path, "w") as f:
