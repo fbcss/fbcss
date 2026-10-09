@@ -401,12 +401,12 @@ with open(transcripts_path, "w") as f:
 
 # Randomly upload sermon to host service
 seen = set(id_map)
-unique_videos = []
+unhosted_videos = []
 for video in all_videos:
     v_id = video["snippet"]["resourceId"]["videoId"]
     if v_id not in seen:
         seen.add(v_id)
-        unique_videos.append(video)
+        unhosted_videos.append(video)
 
 if os.environ["BACKFILL"] == "true" and unhosted_videos:
     while unhosted_videos:
