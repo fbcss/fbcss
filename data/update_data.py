@@ -166,7 +166,7 @@ def download_video(id, is_livestream=False, extract_audio=True):
     print("Downloading video...")
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([f"https://www.youtube.com/watch?v={id}"])
-    print("Successfully downloaded video.")
+    print("Successfully downloaded video")
 
 def upload_video(id, title):
     retries = 4
@@ -344,7 +344,7 @@ for pl in playlists:
         ]
         print("Transcribing video...")
         subprocess.run([whisper_path] + whisper_args)
-        print("Successfully transcribed video.")
+        print("Successfully transcribed video")
 
         with open("output.json", "r") as json_file:
             video_transcript = json.load(json_file)
@@ -398,6 +398,7 @@ with open(transcripts_path, "w") as f:
 unhosted_videos = [video for video in all_videos if video["snippet"]["resourceId"]["videoId"] not in id_map]
 if os.environ["BACKFILL"] == "true" and unhosted_videos:
     while unhosted_videos:
+        print(f"Found {len(unhosted_videos)} unhosted videos")
         random_unhosted_video = random.choice(unhosted_videos)
         random_video_id = random_unhosted_video["snippet"]["resourceId"]["videoId"]
         random_video_title = random_unhosted_video["snippet"]["title"]
