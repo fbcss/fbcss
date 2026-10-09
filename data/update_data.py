@@ -302,25 +302,29 @@ for pl in playlists:
         start_time = time.time()
 
         video = video["snippet"]
-
-        timestamp = video["title"].split(" ")[0]
-
         video_id = video["resourceId"]["videoId"]
+        video_title = video["title"]
+
+        if
+          not video_id or # No video id
+          video_id in BANNED_IDS or # Video is banned from the Sermon Search
+          video_id in existing_video_ids or # Video has already been processed
+          (matched_book and "live!" in video_title.lower()): # Video is a livestream in a book study
+            continue
+
+        timestamp = video_title.split(" ")[0]
         video_data = {
-            "name": video["title"],
+            "name": video_title,
             "id": video_id,
             "date": timestamp
         }
         video_container = data_container
 
         if isGuestSpeakers:
-            if "greg ryan" in video_data["name"].lower():
+            if "greg ryan" in video_title.lower():
                 video_container = video_container["greg_ryan"]
             else:
                 video_container = video_container["other"]
-
-        if not video_id or video_id in BANNED_IDS or video_id in existing_video_ids:
-            continue
 
         if title.lower() == "pastor rob mcnutt":
             video_container = transcripts["other"]
@@ -329,7 +333,7 @@ for pl in playlists:
 
         # If not livestream, upload to hosting service
         if not is_livestream:
-            upload_video(video_id, video_data["name"])
+            upload_video(video_id, video_title)
             os.remove("input.mp4")
 
         # Transcribe audio track
