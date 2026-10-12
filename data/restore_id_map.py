@@ -20,3 +20,5 @@ id_map_path = os.path.join(
 )
 with open(id_map_path, "w") as f:
     json.dump(id_map, f, separators=(",", ":"))
+
+print("Restored ID map")
