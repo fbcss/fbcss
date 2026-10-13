@@ -248,7 +248,7 @@ for pl in playlists:
         data_container = transcripts["books"].setdefault(matched_book, [])
     elif title.lower() == "specials":
         data_container = transcripts["specials"]
-    elif "mark lehew" in title.lower():
+    elif title.lower() == "pastor mark lehew":
         data_container = transcripts["guests"]["mark_lehew"]
     elif isGuestSpeakers:
         data_container = transcripts["guests"]
