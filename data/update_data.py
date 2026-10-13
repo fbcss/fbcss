@@ -235,7 +235,7 @@ playlists.append({
 
 all_videos = []
 
-print("Found " + str(len(playlists)) + " playlists.")
+print("Found " + str(len(playlists)) + " playlists")
 for pl in playlists:
     title = pl["snippet"]["title"]
     is_livestream = title == "live"
@@ -308,9 +308,9 @@ for pl in playlists:
         videos = iterate_api(url, params)
         all_videos.extend(videos)
 
-    print("\n" + str(len(videos)) + " videos found in '" + title + "'.")
+    print("\n" + str(len(videos)) + " videos found in '" + title + "'")
     for i, video in enumerate(videos):
-        print("\nProcessing video " + str(i + 1) + "/" + str(len(videos)) + ".")
+        print("\nProcessing video " + str(i + 1) + "/" + str(len(videos)))
         start_time = time.time()
 
         video = video["snippet"]
@@ -414,12 +414,18 @@ with open(transcripts_path, "w") as f:
 # Randomly upload sermon to host service
 seen = set(id_map)
 unhosted_videos = []
+unhostable_videos = []
 for video in all_videos:
     v_id = video["snippet"]["resourceId"]["videoId"]
     v_title = video["snippet"]["title"]
     if v_id not in seen and v_title != "Private video":
         seen.add(v_id)
         unhosted_videos.append(video)
+
+    if v_title == "Private video":
+        unhostable_videos.append(video)
+
+print(f"Found {len(unhostable_videos)} unhostable videos")
 
 if os.environ["BACKFILL"] == "true" and unhosted_videos:
     while unhosted_videos:
