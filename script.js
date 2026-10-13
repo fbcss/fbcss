@@ -874,6 +874,9 @@ vidOverlay.addEventListener("mouseleave", () => {
   vidOverlay.classList.remove("overlay-hidden");
 });
 
+const video = document.getElementById("video");
+const videoPlay = document.getElementById("video-play");
+
 vidOverlay.addEventListener("click", (e) => {
   if (!document.fullscreenElement) return;
   const isSpecial =
@@ -883,21 +886,17 @@ vidOverlay.addEventListener("click", (e) => {
     e.target.closest("#video-resizer");
   if (isSpecial) return;
 
-  const video = document.getElementById("video");
-  const videoPlay = document.getElementById("video-play");
   if (video.paused) {
     video.play();
-    videoPlay.className = "";
+    videoPlay.className = "paused";
   } else {
     video.pause();
-    videoPlay.className = "paused";
+    videoPlay.className = "";
   }
 });
 
-const videoPlay = document.getElementById("video-play");
 videoPlay.addEventListener("click", (e) => {
   e.stopPropagation();
-  const video = document.getElementById("video");
   if (video.paused) {
     video.play();
     videoPlay.className = "";
@@ -907,12 +906,11 @@ videoPlay.addEventListener("click", (e) => {
   }
 });
 
-const customVideo = document.getElementById("video");
 const onRewindEvent = () => {
-  customVideo.currentTime = Math.max(0, customVideo.currentTime - 5);
+  video.currentTime = Math.max(0, video.currentTime - 5);
 }
 const onForwardEvent = () => {
-  customVideo.currentTime = Math.min(customVideo.duration || 0, customVideo.currentTime + 5);
+  video.currentTime = Math.min(video.duration || 0, video.currentTime + 5);
 }
 const backBtn = document.getElementById("back-btn");
 backBtn.addEventListener("click", onRewindEvent);
@@ -932,7 +930,6 @@ window.miniplayerLoad = async (id, timestamp) => {
 
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
 
-  const video = document.getElementById("video");
   // Load transcript data for this sermon
   try {
     await transcripts;
@@ -1025,7 +1022,6 @@ const _seekFromEvent = (e, video) => {
 };
 
 (() => {
-  const video = document.getElementById("video");
   const pbc = document.getElementById("progress-bar-container");
 
   video.addEventListener("timeupdate", () => _updateProgressUI(video));
@@ -1182,7 +1178,6 @@ const _buildTranscriptPanel = (transcriptArr) => {
     line.className = "tp-line";
     line.innerHTML = `<span class="tp-ts">${ts}</span><span class="tp-text">${text}</span>`;
     line.addEventListener("click", () => {
-      const video = document.getElementById("video");
       video.currentTime = _tsToSecs(ts);
       if (video.paused) video.play();
     });
