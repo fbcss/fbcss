@@ -2,6 +2,10 @@ name: Update transcripts data
 
 on:
   workflow_dispatch:
+    inputs:
+      cancel_in_progress:
+        default: false
+        type: boolean
   schedule:
     # Sundays, after service
     - cron: "14 12 * * 0"
@@ -25,7 +29,7 @@ on:
 
 concurrency:
   group: transcripts
-  cancel-in-progress: false
+  cancel-in-progress: ${{ inputs.cancel_in_progress }}
 
 jobs:
   build:
