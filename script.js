@@ -908,14 +908,16 @@ videoPlay.addEventListener("click", (e) => {
 });
 
 const customVideo = document.getElementById("video");
-const backBtn = document.getElementById("back-btn");
-backBtn.addEventListener("click", () => {
+const onRewindEvent = () => {
   customVideo.currentTime = Math.max(0, customVideo.currentTime - 5);
-});
-const forwardBtn = document.getElementById("forward-btn");
-forwardBtn.addEventListener("click", () => {
+}
+const onForwardEvent = () => {
   customVideo.currentTime = Math.min(customVideo.duration || 0, customVideo.currentTime + 5);
-});
+}
+const backBtn = document.getElementById("back-btn");
+backBtn.addEventListener("click", onRewindEvent);
+const forwardBtn = document.getElementById("forward-btn");
+forwardBtn.addEventListener("click", onForwardEvent);
 
 window.miniplayerLoad = async (id, timestamp) => {
   const parts = timestamp.split(":").map(Number);
@@ -1200,6 +1202,12 @@ window.toggleTranscriptPanel = (e) => {
 let arrayOfCombinations = [];
 let fontNightmare = "";
 window.onkeydown = (e) => {
+  if (e.key === "ArrowLeft") {
+    onRewindEvent();
+  } else if (e.key === "ArrowRight") {
+    onForwardEvent();
+  }
+
   if (
     e.key === "ArrowUp" &&
     (arrayOfCombinations.length === 0 || arrayOfCombinations.length === 1)
