@@ -888,10 +888,10 @@ vidOverlay.addEventListener("click", (e) => {
 
   if (video.paused) {
     video.play();
-    videoPlay.className = "paused";
+    videoPlay.className = "";
   } else {
     video.pause();
-    videoPlay.className = "";
+    videoPlay.className = "paused";
   }
 });
 

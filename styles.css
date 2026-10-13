@@ -807,17 +807,17 @@ body {
       translate: -50% -50%;
     }
 
-    #pause {
+    #play {
       display: none;
     }
 
     &.paused {
       #play {
-        display: none;
+        display: block;
       }
 
       #pause {
-        display: block;
+        display: none;
       }
     }
   }
