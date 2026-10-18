@@ -6,8 +6,6 @@ import transcripts from "transcripts";
 
 const searchBar = document.getElementById("searchbar");
 const contents = document.getElementById("contents");
-const arrowLeft = document.getElementById("left");
-const arrowRight = document.getElementById("right");
 const uploadButton = document.getElementById("upload-button");
 const booksButton = document.getElementById("books-button");
 const sortButton = document.getElementById("sort-button");
@@ -876,6 +874,7 @@ vidOverlay.addEventListener("mouseleave", () => {
 
 const video = document.getElementById("video");
 const videoPlay = document.getElementById("video-play");
+const videoBuffer = document.getElementById("video-buffer");
 
 vidOverlay.addEventListener("click", (e) => {
   if (!document.fullscreenElement) return;
@@ -941,12 +940,12 @@ window.miniplayerLoad = async (id, timestamp) => {
     const sermon = allSermons.find((s) => s.id === id);
     if (sermon && sermon.transcript && sermon.transcript.length) {
       _transcriptData = sermon.transcript;
-      const tBtn = _transcriptBtn();
+      const tBtn = transcriptBtn;
       if (tBtn) tBtn.style.display = "";
       _buildTranscriptPanel(_transcriptData);
     } else {
       _transcriptData = null;
-      const tBtn = _transcriptBtn();
+      const tBtn = transcriptBtn;
       if (tBtn) tBtn.style.display = "none";
       document.getElementById("transcript-panel").className = "hidden";
       document.getElementById("transcript-panel").innerHTML = "";
@@ -959,6 +958,8 @@ window.miniplayerLoad = async (id, timestamp) => {
     video.src = `https://archive.org/download/fbc_${id}/input.mp4`;
     video.currentTime = totalSeconds;
     video.play().catch(e => console.log("Playback prevented:", e));
+    vidOverlay.style.display = "none";
+    videoBuffer.classList.remove("hidden");
     return;
   }
 
@@ -974,10 +975,10 @@ window.closeMiniplayer = () => {
   document.getElementById("transcript-panel").className = "hidden";
   document.getElementById("transcript-panel").innerHTML = "";
   _transcriptData = null;
-  _transcriptBtn()?.classList.remove("active");
+  transcriptBtn.classList.remove("active");
 };
 
-const _transcriptBtn = () => document.getElementById("transcript-btn");
+const transcriptBtn = document.getElementById("transcript-btn");
 
 window.maximizeMiniplayer = () => {
   const player = document.getElementById("miniplayer");
@@ -1026,6 +1027,13 @@ const _seekFromEvent = (e, video) => {
 
   video.addEventListener("timeupdate", () => _updateProgressUI(video));
   video.addEventListener("loadedmetadata", () => _updateProgressUI(video));
+  video.addEventListener("waiting", () => {
+    videoBuffer.classList.remove("hidden");
+  });
+  video.addEventListener("playing", () => {
+    vidOverlay.style.display = "block";
+    videoBuffer.classList.add("hidden");
+  });
 
   pbc.addEventListener("mousedown", (e) => {
     e.stopPropagation();
@@ -1188,14 +1196,14 @@ const _buildTranscriptPanel = (transcriptArr) => {
 window.toggleTranscriptPanel = (e) => {
   e.stopPropagation();
   const panel = document.getElementById("transcript-panel");
-  const btn = _transcriptBtn();
+  const btn = transcriptBtn;
   const visible = panel.className !== "hidden";
   panel.className = visible ? "hidden" : "";
   btn.classList.toggle("active", !visible);
+  _syncTranscriptHighlight(video.currentTime);
 };
 
 let arrayOfCombinations = [];
-let fontNightmare = "";
 window.onkeydown = (e) => {
   if (e.key === "ArrowLeft") {
     onRewindEvent();
