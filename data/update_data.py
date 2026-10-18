@@ -139,6 +139,13 @@ def contains_video_with_date(data, target_date):
 
     return False
 
+def is_valid_date(date_string):
+    try:
+        datetime.strptime(date_string, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
 # Main video handling functions
 def download_video(id, is_livestream=False, extract_audio=True):
     # Ensure there are no leftover input.* files that could interfere with incoming yt-dlp download
@@ -316,16 +323,17 @@ for pl in playlists:
         video = video["snippet"]
         video_id = video["resourceId"]["videoId"]
         video_title = video["title"]
+        timestamp = video_title.split(" ")[0]
 
         if (
           not video_id or # No video id
           video_id in BANNED_IDS or # Video is banned from the Sermon Search
           video_id in existing_video_ids or # Video has already been processed
-          video_title == "Private video" # Video is private, i.e., the video was removed
+          video_title == "Private video" or # Video is private, i.e., the video was removed
+          not is_valid_date(timestamp)
         ):
             continue
 
-        timestamp = video_title.split(" ")[0]
         video_data = {
             "name": video_title,
             "id": video_id,
