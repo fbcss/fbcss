@@ -736,7 +736,9 @@ body {
     display: none;
 
     & ~ #video-overlay,
-    & ~ #transcript-panel {
+    & ~ #transcript-panel,
+    & ~ #video-buffer, 
+    & ~ #video-border {
       display: none;
     }
   }
