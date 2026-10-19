@@ -3,7 +3,6 @@
 import moment from "moment";
 import idMap from "id_map";
 
-const transcriptPromise = fetch("data/transcripts.json").then(res => res.json());
 let transcripts;
 
 const searchBar = document.getElementById("searchbar");
@@ -183,7 +182,6 @@ const betweenDates = (date) => {
 
 const fetchSermons = async (VideoID = "") => {
   try {
-    transcripts = await transcriptPromise;
     let finalResult = [];
     let all = false;
     if (!pastors["rob"] && !pastors["mark_lehew"] && !pastors["greg_ryan"] && !pastors["other"])
@@ -538,11 +536,20 @@ const search = async () => {
 contents.innerHTML = `<div id="match-count">Loading sermons...</div>`;
 
 const initResults = async () => {
+  const m = await (await fetch(`dist/data/manifest.json?t=${Date.now()}`, {cache: "no-store"})).json();
+
+  const buffers = await Promise.all(
+    Array.from({length: m.chunks}, (_, i) =>
+      fetch(`dist/data/chunk-${i}.txt?v=${m.v}`).then(r => r.arrayBuffer())
+    )
+  );
+
+  const text = await new Blob(buffers).text();
+  transcripts = JSON.parse(text);
+
   const oldTestament = Object.keys(testaments["Old Testament"]);
   const newTestament = Object.keys(testaments["New Testament"]);
   const orderedBooks = [...oldTestament, ...newTestament];
-
-  transcripts = await transcriptPromise;
 
   for (let book of orderedBooks) {
     if (!transcripts["books"].hasOwnProperty(book)) continue;
@@ -1025,50 +1032,47 @@ const _seekFromEvent = (e, video) => {
   _updateProgressUI(video);
 };
 
-(() => {
-  const pbc = document.getElementById("progress-bar-container");
+const pbc = document.getElementById("progress-bar-container");
 
-  video.addEventListener("timeupdate", () => _updateProgressUI(video));
-  video.addEventListener("loadedmetadata", () => _updateProgressUI(video));
-  video.addEventListener("waiting", () => {
-    videoBuffer.classList.remove("hidden");
-  });
-  video.addEventListener("playing", () => {
-    vidOverlay.classList.remove("hidden");
-    videoBuffer.classList.add("hidden");
-  });
-
-  pbc.addEventListener("mousedown", (e) => {
+video.addEventListener("timeupdate", () => _updateProgressUI(video));
+video.addEventListener("loadedmetadata", () => _updateProgressUI(video));
+video.addEventListener("waiting", () => {
+  videoBuffer.classList.remove("hidden");
+});
+video.addEventListener("playing", () => {
+  vidOverlay.classList.remove("hidden");
+  videoBuffer.classList.add("hidden");
+});
+pbc.addEventListener("mousedown", (e) => {
+  e.stopPropagation();
+  _progressDragging = true;
+  _seekFromEvent(e, video);
+});
+pbc.addEventListener(
+  "touchstart",
+  (e) => {
     e.stopPropagation();
     _progressDragging = true;
     _seekFromEvent(e, video);
-  });
-  pbc.addEventListener(
-    "touchstart",
-    (e) => {
-      e.stopPropagation();
-      _progressDragging = true;
-      _seekFromEvent(e, video);
-    },
-    { passive: true },
-  );
-  document.addEventListener("mousemove", (e) => {
+  },
+  { passive: true },
+);
+document.addEventListener("mousemove", (e) => {
+  if (_progressDragging) _seekFromEvent(e, video);
+});
+document.addEventListener(
+  "touchmove",
+  (e) => {
     if (_progressDragging) _seekFromEvent(e, video);
-  });
-  document.addEventListener(
-    "touchmove",
-    (e) => {
-      if (_progressDragging) _seekFromEvent(e, video);
-    },
-    { passive: true },
-  );
-  document.addEventListener("mouseup", () => {
-    _progressDragging = false;
-  });
-  document.addEventListener("touchend", () => {
-    _progressDragging = false;
-  });
-})();
+  },
+  { passive: true },
+);
+document.addEventListener("mouseup", () => {
+  _progressDragging = false;
+});
+document.addEventListener("touchend", () => {
+  _progressDragging = false;
+});
 
 let initialPinchDistance = null;
 
