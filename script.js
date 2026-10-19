@@ -961,7 +961,7 @@ window.miniplayerLoad = async (id, timestamp) => {
     video.src = `https://archive.org/download/fbc_${id}/input.mp4`;
     video.currentTime = totalSeconds;
     video.play().catch(e => console.log("Playback prevented:", e));
-    vidOverlay.style.display = "none";
+    vidOverlay.classList.add("hidden");
     videoBuffer.classList.remove("hidden");
     return;
   }
@@ -1034,7 +1034,7 @@ const _seekFromEvent = (e, video) => {
     videoBuffer.classList.remove("hidden");
   });
   video.addEventListener("playing", () => {
-    vidOverlay.style.display = "block";
+    vidOverlay.classList.remove("hidden");
     videoBuffer.classList.add("hidden");
   });
 
