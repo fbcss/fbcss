@@ -2,7 +2,9 @@
 
 import moment from "moment";
 import idMap from "id_map";
-import transcripts from "transcripts";
+
+const transcriptPromise = fetch("data/transcripts.json").then(res => res.json());
+let transcripts;
 
 const searchBar = document.getElementById("searchbar");
 const contents = document.getElementById("contents");
@@ -181,7 +183,7 @@ const betweenDates = (date) => {
 
 const fetchSermons = async (VideoID = "") => {
   try {
-    await transcripts;
+    transcripts = await transcriptPromise;
     let finalResult = [];
     let all = false;
     if (!pastors["rob"] && !pastors["mark_lehew"] && !pastors["greg_ryan"] && !pastors["other"])
@@ -533,12 +535,15 @@ const search = async () => {
 // =================================================================================================
 // Load initial sermon data.
 // =================================================================================================
-try {
-  contents.innerHTML = `<div id="match-count">Loading sermons...</div>`;
+contents.innerHTML = `<div id="match-count">Loading sermons...</div>`;
 
+const initResults = async () => {
   const oldTestament = Object.keys(testaments["Old Testament"]);
   const newTestament = Object.keys(testaments["New Testament"]);
   const orderedBooks = [...oldTestament, ...newTestament];
+
+  transcripts = await transcriptPromise;
+
   for (let book of orderedBooks) {
     if (!transcripts["books"].hasOwnProperty(book)) continue;
 
@@ -570,9 +575,8 @@ try {
   }
   booksContent.style.height = String(85 + Object.keys(transcripts["books"]).length * 20) + "px";
   resetSearch();
-} catch (err) {
-  console.error(err);
 }
+initResults();
 
 const togglePastor = (pastor) => {
   const el = document.getElementById(pastor);
@@ -931,7 +935,6 @@ window.miniplayerLoad = async (id, timestamp) => {
 
   // Load transcript data for this sermon
   try {
-    await transcripts;
     const allSermons = Object.values(transcripts["books"] || {})
       .flat()
       .concat(Object.values(transcripts["guests"] || {}).flat())
