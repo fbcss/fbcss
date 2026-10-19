@@ -759,7 +759,6 @@ body {
     border-radius: 20px;
     corner-shape: squircle;
   }
-
 }
 
 #video-buffer {
@@ -1636,7 +1635,6 @@ body {
   }
 }
 
-/* ── Fullscreen Transcript Styling ──────────────────────────────── */
 #miniplayer:fullscreen {
   width: 100vw !important;
   height: 100vh !important;
@@ -1664,7 +1662,6 @@ body {
   cursor: default !important;
 }
 
-/* Portrait orientation in fullscreen */
 @media (orientation: portrait) {
   #miniplayer:fullscreen {
     flex-direction: column !important;
@@ -1672,7 +1669,6 @@ body {
 
   #miniplayer:fullscreen #video-container {
     height: auto !important;
-    /* Allow flex container layout */
   }
 
   #miniplayer:fullscreen #transcript-panel:not(.hidden) {
@@ -1690,7 +1686,6 @@ body {
   }
 }
 
-/* Landscape orientation in fullscreen */
 @media (orientation: landscape) {
   #miniplayer:fullscreen {
     flex-direction: row !important;
@@ -1722,7 +1717,6 @@ body {
   }
 }
 
-/* Transcript Sticky Header in Fullscreen */
 .tp-header {
   display: none;
 }
