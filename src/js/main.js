@@ -722,6 +722,7 @@ const resizeHandle = document.getElementById("miniplayer-resize");
 let isDragging = false;
 let isResizing = false;
 let onMiniplayer = false;
+let hasDragged = false;
 let startX, startY, initialX, initialY, initialWidth, initialHeight;
 
 const ensureTarget = (e) => {
@@ -747,6 +748,11 @@ const handleDragMove = (e) => {
   if (onMiniplayer) {
     const dx = (e.clientX || e.touches[0].clientX) - startX;
     const dy = (e.clientY || e.touches[0].clientY) - startY;
+
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+      hasDragged = true;
+    }
+
     embed.style.left = `${initialX + dx}px`;
     embed.style.top = `${initialY + dy}px`;
     e.preventDefault();
@@ -759,6 +765,10 @@ const handleDragEnd = (e) => {
   onMiniplayer = false;
   if (isDragging) isDragging = false;
   e.target.style.cursor = "grab";
+
+  setTimeout(() => {
+    hasDragged = false;
+  }, 50);
 };
 
 const videoElement = document.getElementById("video");
@@ -846,6 +856,7 @@ let _overlayHideTimer = null;
 const _scheduleOverlayHide = () => {
   clearTimeout(_overlayHideTimer);
   _overlayHideTimer = setTimeout(() => {
+    vidOverlay.classList.remove("show-controls");
     vidOverlay.classList.add("overlay-hidden");
   }, 3000);
 };
@@ -855,31 +866,33 @@ const _cancelOverlayHide = () => {
   vidOverlay.classList.remove("overlay-hidden");
 };
 
+const handleInterfaceActivity = () => {
+  _cancelOverlayHide();
+  _scheduleOverlayHide();
+}
+
 // On hover/touch enter, show overlay and start the countdown
+vidOverlay.dirname = "mouseenter";
 vidOverlay.addEventListener("mouseenter", () => {
   _cancelOverlayHide();
+  vidOverlay.classList.add("show-controls");
   _scheduleOverlayHide();
 });
 
 // Any pointer movement resets the timer
-vidOverlay.addEventListener("mousemove", () => {
-  _cancelOverlayHide();
-  _scheduleOverlayHide();
-});
+vidOverlay.addEventListener("mousemove", handleInterfaceActivity);
 
 // Touch activity: show and restart the countdown
 vidOverlay.addEventListener(
   "touchstart",
-  () => {
-    _cancelOverlayHide();
-    _scheduleOverlayHide();
-  },
+  handleInterfaceActivity,
   { passive: true, capture: true },
 );
 
 // When leaving (desktop), cancel the timer and let CSS :hover handle hiding
 vidOverlay.addEventListener("mouseleave", () => {
   clearTimeout(_overlayHideTimer);
+  vidOverlay.classList.remove("show-controls");
   vidOverlay.classList.remove("overlay-hidden");
 });
 
@@ -888,7 +901,17 @@ const videoPlay = document.getElementById("video-play");
 const videoBuffer = document.getElementById("video-buffer");
 
 vidOverlay.addEventListener("click", (e) => {
-  if (!document.fullscreenElement) return;
+  if (hasDragged) return;
+
+  if (!document.fullscreenElement && window.matchMedia("(max-width: 1135px)").matches) {
+    // If controls aren't showing yet on mobile, show them
+    if (!vidOverlay.classList.contains("show-controls")) {
+      vidOverlay.classList.add("show-controls");
+      _scheduleOverlayHide();
+      return;
+    }
+  }
+
   const isSpecial =
     e.target.closest("#video-controls") ||
     e.target.closest("#video-close") ||

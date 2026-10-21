@@ -808,7 +808,8 @@ body {
   opacity: 0;
   transition: 300ms ease opacity;
 
-  &:hover {
+  &:hover,
+  &.show-controls {
     opacity: 1;
   }
 
@@ -911,7 +912,8 @@ body {
   }
 }
 
-#video-overlay:hover #video-controls {
+#video-overlay:hover #video-controls,
+#video-overlay.show-controls #video-controls {
   opacity: 1;
   pointer-events: auto;
 }
