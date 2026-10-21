@@ -536,11 +536,11 @@ const search = async () => {
 contents.innerHTML = `<div id="match-count">Loading sermons...</div>`;
 
 const initResults = async () => {
-  const m = await (await fetch(`dist/data/manifest.json?t=${Date.now()}`, {cache: "no-store"})).json();
+  const m = await (await fetch(`data/manifest.json?t=${Date.now()}`, {cache: "no-store"})).json();
 
   const buffers = await Promise.all(
     Array.from({length: m.chunks}, (_, i) =>
-      fetch(`dist/data/chunk-${i}.txt?v=${m.v}`).then(r => r.arrayBuffer())
+      fetch(`data/chunk-${i}.txt?v=${m.v}`).then(r => r.arrayBuffer())
     )
   );
 
